@@ -3,308 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Speaker's Crucible</title>
+    <title>The Influence Diagnostic | Vetting Engine</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
     <style>
         :root {
-            --primary: #6366f1;
-            --dark: #0f172a;
-            --bg-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            --primary: #1e293b;
+            --accent: #6366f1;
+            --bg: #f8fafc;
         }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .card { background: white; width: 95%; max-width: 850px; border-radius: 24px; padding: 60px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; }
+        
+        .nav-footer { display: flex; justify-content: space-between; margin-top: 50px; }
+        .btn { padding: 14px 34px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; border: 1.5px solid var(--primary); font-size: 0.8rem; letter-spacing: 1px; }
+        .btn-prev { background: transparent; color: var(--primary); }
+        .btn-next { background: var(--primary); color: white; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-gradient);
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            color: var(--dark);
-        }
+        .question-text { font-size: 1.6rem; font-weight: 800; line-height: 1.3; margin-bottom: 35px; color: #0f172a; }
+        .option-container { display: flex; flex-direction: column; gap: 15px; }
+        .option { padding: 20px 25px; border: 1.5px solid #e2e8f0; border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; text-align: left; background: white; font-size: 1rem; }
+        .option:hover { border-color: var(--accent); background: #f5f3ff; }
+        .option.selected { border-color: var(--accent); background: #f5f3ff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
 
-        .card {
-            background: #ffffff;
-            width: 90%;
-            max-width: 900px;
-            min-height: 500px;
-            border-radius: 30px;
-            padding: 50px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-        }
+        .progress-bar { position: absolute; top: 0; left: 0; height: 6px; background: #e2e8f0; width: 100%; border-radius: 24px 24px 0 0; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
 
-        /* Top Progress Bar */
-        .progress-container {
-            width: 100%;
-            height: 6px;
-            background: #f1f5f9;
-            border-radius: 10px;
-            margin-bottom: 40px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #e2e8f0;
-            width: 0%;
-            transition: width 0.4s ease;
-            border-radius: 10px;
-        }
-
-        /* Content Area */
-        .content-area {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .q-type {
-            color: var(--primary);
-            font-weight: 800;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 10px;
-        }
-
-        .question-text {
-            font-size: 1.8rem;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 30px;
-        }
-
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .option-btn {
-            background: #fff;
-            border: 2px solid #f1f5f9;
-            padding: 18px 25px;
-            border-radius: 15px;
-            cursor: pointer;
-            text-align: left;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-        }
-
-        .option-btn:hover {
-            border-color: var(--primary);
-            background: #f8fafc;
-        }
-
-        .option-btn.selected {
-            border-color: var(--primary);
-            background: #eef2ff;
-        }
-
-        .letter {
-            width: 30px;
-            height: 30px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        /* Navigation Buttons */
-        .nav-footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 40px;
-        }
-
-        .btn {
-            padding: 14px 30px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-        }
-
-        .btn-prev {
-            background: #fff;
-            border: 2px solid var(--dark);
-            color: var(--dark);
-        }
-
-        .btn-prev:disabled {
-            opacity: 0.2;
-            cursor: not-allowed;
-        }
-
-        .btn-next {
-            background: var(--dark);
-            border: 2px solid var(--dark);
-            color: #fff;
-        }
-
-        .btn-next:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Results */
+        /* Analysis UI */
         #results { display: none; }
-        .arch-title { font-size: 3rem; font-weight: 800; margin: 0; color: var(--primary); }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate { animation: fadeIn 0.4s ease forwards; }
+        .risk-meter { height: 10px; background: #e2e8f0; border-radius: 5px; margin: 10px 0 25px; overflow: hidden; }
+        .risk-fill { height: 100%; transition: width 1s ease-out; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
+        .risk-label { font-weight: 800; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div id="quiz-ui">
-            <div class="progress-container">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-
-            <div class="content-area animate" id="question-container">
-                </div>
-
-            <div class="nav-footer">
-                <button class="btn btn-prev" id="prev-btn" onclick="prev()">← PREVIOUS</button>
-                <button class="btn btn-next" id="next-btn" onclick="next()">NEXT →</button>
-            </div>
-        </div>
-
-        <div id="results" class="animate">
-            <div id="pdf-export">
-                <h1 class="arch-title" id="arch-name">The Catalyst</h1>
-                <p id="arch-desc" style="font-size: 1.2rem; line-height: 1.6; margin: 20px 0;"></p>
-                <div style="background: #f8fafc; padding: 25px; border-radius: 20px;">
-                    <h3 style="color: var(--primary); margin-top: 0;">Transformation Protocol</h3>
-                    <ul id="arch-tips" style="line-height: 2;"></ul>
-                </div>
-            </div>
-            <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <button class="btn btn-next" onclick="savePDF()">Download PDF</button>
-                <button class="btn btn-prev" onclick="location.reload()">Restart</button>
-            </div>
+<div class="card">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    
+    <div id="quiz-ui">
+        <div id="question-container"></div>
+        <div class="nav-footer">
+            <button class="btn btn-prev" id="prev-btn" onclick="prev()">← PREVIOUS</button>
+            <button class="btn btn-next" id="next-btn" onclick="next()">NEXT STEP →</button>
         </div>
     </div>
 
+    <div id="results">
+        <div id="pdf-content">
+            <h1 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 5px;">Influence Risk Profile</h1>
+            <p style="color: #64748b; margin-bottom: 40px;">Psychometric Vetting Analysis</p>
+            
+            <div id="risk-meters"></div>
+            
+            <div class="grid">
+                <div style="background: #f8fafc; padding: 25px; border-radius: 16px;">
+                    <h4 style="margin-top:0; color:var(--accent);">Core Behavioral Leak</h4>
+                    <p id="leak-desc" style="font-size: 0.95rem; line-height: 1.6;"></p>
+                </div>
+                <div style="background: #f8fafc; padding: 25px; border-radius: 16px;">
+                    <h4 style="margin-top:0; color:var(--accent);">High-Stakes Protocol</h4>
+                    <ul id="protocol-list" style="font-size: 0.95rem; padding-left: 20px; line-height: 1.8;"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="nav-footer">
+            <button class="btn btn-next" onclick="savePDF()">DOWNLOAD PDF</button>
+            <button class="btn btn-prev" onclick="location.reload()">RE-DIAGNOSE</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    const questions = [
-        { type: "Scenario 1: Technical Failure", q: "The projector dies mid-pitch. The room is silent. You...", a: "Wait for IT. The audience needs to see the visuals for the pitch to work.", b: "Make a joke to stall while trying to recite the slide content from memory.", c: "Step away from the screen, walk closer, and say 'Actually, we don't need these.'" },
-        { type: "Scenario 2: Time Pressure", q: "You have 12 minutes for a 45-slide deck. What's the plan?", a: "Speed-talk to ensure every data point is delivered to the record.", b: "Skip to the 10 most important slides and summarize the bullets quickly.", c: "Ignore the slides. Tell one story that illustrates the 'Why' behind the data." },
-        { type: "Scenario 3: Conflict", q: "A stakeholder says: 'This approach is a waste of our time.'", a: "Defend with logical facts, data, and research that prove you are right.", b: "Smile politely and offer to 'take it offline' to move on to other questions.", c: "Pause, validate them ('You have concerns'), and ask what worries them most." },
-        { type: "The Foundation", q: "How do you start building a high-stakes presentation?", a: "Gathering all critical data and outlining the logic chain.", b: "Designing a powerful opening hook and a memorable closing.", c: "Mapping the emotional shift the audience needs to make." },
-        { type: "Recovery", q: "Your mind goes completely blank mid-sentence. You...", a: "Check your notes or click through slides to find your place.", b: "Start riffing on a related tangent until you remember the point.", c: "Admit it: 'I've lost my train of thought. Where were we?'" },
-        { type: "Simplicity", q: "Explaining complex tech to non-technical executives.", a: "Use precise industry terms to maintain accuracy and authority.", b: "Use visionary buzzwords and focus on the 'Big Picture' ROI.", c: "Use a simple analogy, even if it ignores some technical nuance." },
-        { type: "Energy", q: "Half the room is looking at their phones. You...", a: "Focus on the few people paying attention and finish your script.", b: "Speak louder and use bigger gestures to force their attention back.", c: "Stop the talk. Acknowledge the energy shift and ask a question." },
-        { type: "Authenticity", q: "You are sharing a story about a massive failure. You...", a: "Stay behind the podium. Keep the delivery clinical and objective.", b: "Use rehearsed theatrical gestures to emphasize the drama.", c: "Move close to the edge of the stage and speak like a friend." },
-        { type: "Composure", q: "A difficult question makes you sweat. Your hands...", a: "Grip the podium or clicker for physical grounding.", b: "Move rapidly—lots of erratic gestures to mask the nerves.", c: "Stay still and open. You use a long pause as a power move." },
-        { type: "The Success Metric", q: "You've finished. How do you judge the success?", a: "Did I cover all my material accurately without any errors?", b: "Did they clap loudly and give me high praise afterwards?", c: "Did the audience's body language change? Are they ready to act?" }
+// Oblique questions that don't reveal the 'right' answer
+const questions = [
+    { q: "An executive challenges a data point that you know is 100% correct. You prioritize:", a: "Ensuring the record is corrected immediately to maintain total accuracy.", b: "Validating their perspective to ensure the relationship remains intact.", c: "Understanding the motive behind their challenge to see if it changes the deal." },
+    { q: "You have 60 seconds left and two slides to go. Do you:", a: "Speak faster to ensure all intended information is physically delivered.", b: "Skip the slides and use the time to thank the audience for their attention.", c: "Ask the audience one specific question that forces them to take a side." },
+    { q: "Your mind goes blank. Your immediate internal focus is:", a: "Scanning your mental notes to find the exact logical thread you lost.", b: "Regulating your body language so the audience doesn't see you 'fail'.", c: "Checking the audience's faces to see if the silence is actually working in your favor." },
+    { q: "In a meeting with higher-status individuals, your speech pattern shifts to:", a: "More formal, precise, and technical to establish your 'right' to be there.", b: "Warm, agreeable, and encouraging to build social cohesion.", c: "Brief, direct, and outcome-focused, often using longer silences." },
+    { q: "A peer tells you your talk was 'too technical'. Your first reflex is:", a: "To explain the complexity of the subject matter that required that depth.", b: "To feel a sense of social regret for not 'connecting' better.", c: "To calculate if that technicality prevented the decision-maker from acting." }
+];
+
+// Weighted values: [Rigidity, Validation, Friction]
+const weights = [
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] }
+];
+
+let currentIdx = 0;
+let userAnswers = new Array(questions.length).fill(null);
+
+function render() {
+    const container = document.getElementById('question-container');
+    const q = questions[currentIdx];
+    container.innerHTML = `
+        <div class="question-text">${q.q}</div>
+        <div class="option-container">
+            <button class="option ${userAnswers[currentIdx]==='A'?'selected':''}" onclick="setAns('A')">${q.a}</button>
+            <button class="option ${userAnswers[currentIdx]==='B'?'selected':''}" onclick="setAns('B')">${q.b}</button>
+            <button class="option ${userAnswers[currentIdx]==='C'?'selected':''}" onclick="setAns('C')">${q.c}</button>
+        </div>
+    `;
+    document.getElementById('progress-fill').style.width = `${((currentIdx + 1) / questions.length) * 100}%`;
+    document.getElementById('prev-btn').disabled = currentIdx === 0;
+    document.getElementById('next-btn').disabled = userAnswers[currentIdx] === null;
+    document.getElementById('next-btn').innerText = currentIdx === questions.length - 1 ? "FINALIZE VETTING" : "NEXT STEP →";
+}
+
+window.setAns = (v) => { userAnswers[currentIdx] = v; render(); };
+window.prev = () => { currentIdx--; render(); };
+window.next = () => { if(currentIdx < questions.length - 1) { currentIdx++; render(); } else { showResults(); } };
+
+function showResults() {
+    document.getElementById('quiz-ui').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+
+    let totals = [0, 0, 0]; // Rigidity, Validation, Friction
+    userAnswers.forEach((ans, i) => {
+        weights[i][ans].forEach((val, index) => totals[index] += val);
+    });
+
+    const categories = [
+        { name: "Informational Rigidity", val: totals[0], color: "#ef4444", d: "You prioritize data accuracy over human movement. You likely overwhelm stakeholders with 'The How' while they are looking for 'The Why'.", t: ["Cut your decks by 60%.", "Focus on the 'Diagnosis' rather than the 'Description'."] },
+        { name: "Validation Dependency", val: totals[1], color: "#f59e0b", d: "You prioritize social harmony and personal likability. You likely 'soften' your message so much that it loses its edge and urgency.", t: ["Speak 20% slower.", "Practice delivering bad news without a smile."] },
+        { name: "Strategic Friction", val: totals[2], color: "#10b981", d: "You focus on outcomes but may lack the technical or social 'buy-in' to make them stick. You risk being viewed as too transactional.", t: ["Anchor your challenges in shared data.", "Use 'We' instead of 'I' during calls to action."] }
     ];
 
-    let currentIdx = 0;
-    let userAnswers = new Array(questions.length).fill(null);
+    const meterContainer = document.getElementById('risk-meters');
+    meterContainer.innerHTML = categories.map(c => `
+        <div class="risk-label">${c.name}</div>
+        <div class="risk-meter"><div class="risk-fill" style="width:${(c.val/10)*100}%; background:${c.color};"></div></div>
+    `).join('');
 
-    function render() {
-        const container = document.getElementById('question-container');
-        const q = questions[currentIdx];
-        
-        container.innerHTML = `
-            <div class="q-type">${q.type}</div>
-            <div class="question-text">${q.q}</div>
-            <div class="options-list">
-                <button class="option-btn ${userAnswers[currentIdx] === 'A' ? 'selected' : ''}" onclick="saveAnswer('A')"><div class="letter">A</div> ${q.a}</button>
-                <button class="option-btn ${userAnswers[currentIdx] === 'B' ? 'selected' : ''}" onclick="saveAnswer('B')"><div class="letter">B</div> ${q.b}</button>
-                <button class="option-btn ${userAnswers[currentIdx] === 'C' ? 'selected' : ''}" onclick="saveAnswer('C')"><div class="letter">C</div> ${q.c}</button>
-            </div>
-        `;
+    const topRisk = categories.sort((a,b) => b.val - a.val)[0];
+    document.getElementById('leak-desc').innerText = topRisk.d;
+    document.getElementById('protocol-list').innerHTML = topRisk.t.map(t => `<li>${t}</li>`).join('');
+}
 
-        document.getElementById('progress-fill').style.width = `${((currentIdx + 1) / questions.length) * 100}%`;
-        document.getElementById('prev-btn').disabled = currentIdx === 0;
-        
-        // Change "Next" to "Finish" on the last question
-        const nextBtn = document.getElementById('next-btn');
-        if (currentIdx === questions.length - 1) {
-            nextBtn.innerText = "Finish Analysis";
-        } else {
-            nextBtn.innerText = "Next →";
-        }
-        
-        nextBtn.disabled = userAnswers[currentIdx] === null;
-    }
+window.savePDF = () => { html2pdf().from(document.getElementById('pdf-content')).save('Vetting_Analysis.pdf'); };
 
-    window.saveAnswer = function(choice) {
-        userAnswers[currentIdx] = choice;
-        render();
-    };
-
-    window.next = function() {
-        if (currentIdx < questions.length - 1) {
-            currentIdx++;
-            render();
-        } else {
-            showResults();
-        }
-    };
-
-    window.prev = function() {
-        if (currentIdx > 0) {
-            currentIdx--;
-            render();
-        }
-    };
-
-    function showResults() {
-        document.getElementById('quiz-ui').style.display = 'none';
-        document.getElementById('results').style.display = 'block';
-
-        const scores = { A: 0, B: 0, C: 0 };
-        userAnswers.forEach(ans => scores[ans]++);
-
-        let name, desc, tips;
-        if (scores.C > scores.A && scores.C > scores.B) {
-            name = "The Catalyst";
-            desc = "You prioritize audience transformation. You view speaking as an act of service and are willing to be vulnerable to ensure the message lands.";
-            tips = ["Add more rigid structure to your next pitch.", "Pair every emotional story with a hard statistic.", "Give direct commands at the end."];
-        } else if (scores.B > scores.A) {
-            name = "The Performer";
-            desc = "You use charisma to win the room, but may be prioritizing 'being liked' over providing 'utility'.";
-            tips = ["Practice a talk without moving your feet once.", "Focus on actionable 'How-to' steps.", "Use silence more than jokes."];
-        } else {
-            name = "The Professor";
-            desc = "You prioritize accuracy and data. You use information as a shield to avoid the vulnerability of real connection.";
-            tips = ["Delete half your slides.", "Start your next talk with a personal failure.", "Wait 3 seconds after every major point."];
-        }
-
-        document.getElementById('arch-name').innerText = name;
-        document.getElementById('arch-desc').innerText = desc;
-        document.getElementById('arch-tips').innerHTML = tips.map(t => `<li>${t}</li>`).join('');
-    }
-
-    window.savePDF = function() {
-        const element = document.getElementById('pdf-export');
-        html2pdf().from(element).save('My_Masterclass_Analysis.pdf');
-    };
-
-    // INITIAL LOAD
-    render();
+render();
 </script>
 </body>
 </html>
