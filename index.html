@@ -3,91 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Influence Diagnostic | Vetting Engine</title>
+    <title>The Influence Diagnostic | Advanced Vetting</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --primary: #1e293b;
+            --primary: #0f172a;
             --accent: #6366f1;
-            --bg: #f8fafc;
+            --bg-grad: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
         }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .card { background: white; width: 95%; max-width: 850px; border-radius: 24px; padding: 60px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-grad); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         
+        .card { 
+            background: white; width: 90%; max-width: 950px; min-height: 550px; 
+            border-radius: 30px; padding: 60px; box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; justify-content: space-between; position: relative;
+        }
+
+        .progress-bar { position: absolute; top: 0; left: 0; height: 8px; background: #f1f5f9; width: 100%; border-radius: 30px 30px 0 0; }
+        .progress-fill { height: 100%; background: #e2e8f0; width: 0%; transition: width 0.4s ease; border-radius: 30px; }
+
+        .q-meta { color: var(--accent); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .q-text { font-size: 1.8rem; font-weight: 800; line-height: 1.25; color: var(--primary); margin-bottom: 35px; }
+
+        .options-list { display: flex; flex-direction: column; gap: 15px; }
+        .opt-btn { 
+            background: #fff; border: 2px solid #f1f5f9; padding: 20px 30px; border-radius: 16px;
+            cursor: pointer; text-align: left; font-size: 1.05rem; font-weight: 600; transition: 0.2s;
+            display: flex; align-items: center;
+        }
+        .opt-btn:hover { border-color: var(--accent); background: #f8fafc; }
+        .opt-btn.selected { border-color: var(--accent); background: #f5f3ff; }
+        .opt-letter { width: 35px; height: 35px; background: #f1f5f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 20px; color: var(--accent); font-weight: 800; }
+
         .nav-footer { display: flex; justify-content: space-between; margin-top: 50px; }
-        .btn { padding: 14px 34px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; border: 1.5px solid var(--primary); font-size: 0.8rem; letter-spacing: 1px; }
-        .btn-prev { background: transparent; color: var(--primary); }
-        .btn-next { background: var(--primary); color: white; }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn { padding: 15px 35px; border-radius: 12px; font-weight: 800; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-prev { background: #fff; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-prev:disabled { opacity: 0.2; cursor: not-allowed; }
+        .btn-next { background: var(--primary); border: 2px solid var(--primary); color: #fff; }
+        .btn-next:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .question-text { font-size: 1.6rem; font-weight: 800; line-height: 1.3; margin-bottom: 35px; color: #0f172a; }
-        .option-container { display: flex; flex-direction: column; gap: 15px; }
-        .option { padding: 20px 25px; border: 1.5px solid #e2e8f0; border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; text-align: left; background: white; font-size: 1rem; }
-        .option:hover { border-color: var(--accent); background: #f5f3ff; }
-        .option.selected { border-color: var(--accent); background: #f5f3ff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
-
-        .progress-bar { position: absolute; top: 0; left: 0; height: 6px; background: #e2e8f0; width: 100%; border-radius: 24px 24px 0 0; }
-        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
-
-        /* Analysis UI */
-        #results { display: none; }
-        .risk-meter { height: 10px; background: #e2e8f0; border-radius: 5px; margin: 10px 0 25px; overflow: hidden; }
-        .risk-fill { height: 100%; transition: width 1s ease-out; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
-        .risk-label { font-weight: 800; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
+        #results { display: none; text-align: left; }
+        .risk-item { margin-bottom: 25px; }
+        .meter { height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden; margin-top: 8px; }
+        .fill { height: 100%; transition: width 1s ease; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-bar"><div class="progress-fill" id="p-fill"></div></div>
     
     <div id="quiz-ui">
-        <div id="question-container"></div>
+        <div id="q-area">
+            <div class="q-meta" id="q-category">Internal Calibration</div>
+            <div class="q-text" id="q-text">Loading question...</div>
+            <div class="options-list" id="opt-list"></div>
+        </div>
         <div class="nav-footer">
-            <button class="btn btn-prev" id="prev-btn" onclick="prev()">← PREVIOUS</button>
-            <button class="btn btn-next" id="next-btn" onclick="next()">NEXT STEP →</button>
+            <button class="btn btn-prev" id="prev" onclick="move(-1)">← PREVIOUS</button>
+            <button class="btn btn-next" id="next" onclick="move(1)">NEXT →</button>
         </div>
     </div>
 
     <div id="results">
         <div id="pdf-content">
-            <h1 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 5px;">Influence Risk Profile</h1>
-            <p style="color: #64748b; margin-bottom: 40px;">Psychometric Vetting Analysis</p>
-            
-            <div id="risk-meters"></div>
-            
-            <div class="grid">
-                <div style="background: #f8fafc; padding: 25px; border-radius: 16px;">
-                    <h4 style="margin-top:0; color:var(--accent);">Core Behavioral Leak</h4>
-                    <p id="leak-desc" style="font-size: 0.95rem; line-height: 1.6;"></p>
-                </div>
-                <div style="background: #f8fafc; padding: 25px; border-radius: 16px;">
-                    <h4 style="margin-top:0; color:var(--accent);">High-Stakes Protocol</h4>
-                    <ul id="protocol-list" style="font-size: 0.95rem; padding-left: 20px; line-height: 1.8;"></ul>
-                </div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 5px;">Vetting Analysis</h1>
+            <p style="color: #64748b; margin-bottom: 30px;">Hidden Influence Drivers & Risk Profile</p>
+            <div id="meters"></div>
+            <div style="margin-top: 40px; background: #f8fafc; padding: 30px; border-radius: 20px;">
+                <h3 id="top-risk-title" style="color: var(--accent); margin-top:0;"></h3>
+                <p id="risk-desc" style="line-height: 1.6;"></p>
+                <ul id="protocol" style="line-height: 2;"></ul>
             </div>
         </div>
-        <div class="nav-footer">
-            <button class="btn btn-next" onclick="savePDF()">DOWNLOAD PDF</button>
-            <button class="btn btn-prev" onclick="location.reload()">RE-DIAGNOSE</button>
+        <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <button class="btn btn-next" onclick="savePDF()">Export Analysis</button>
+            <button class="btn btn-prev" onclick="location.reload()">Reset</button>
         </div>
     </div>
 </div>
 
 <script>
-// Oblique questions that don't reveal the 'right' answer
 const questions = [
-    { q: "An executive challenges a data point that you know is 100% correct. You prioritize:", a: "Ensuring the record is corrected immediately to maintain total accuracy.", b: "Validating their perspective to ensure the relationship remains intact.", c: "Understanding the motive behind their challenge to see if it changes the deal." },
-    { q: "You have 60 seconds left and two slides to go. Do you:", a: "Speak faster to ensure all intended information is physically delivered.", b: "Skip the slides and use the time to thank the audience for their attention.", c: "Ask the audience one specific question that forces them to take a side." },
-    { q: "Your mind goes blank. Your immediate internal focus is:", a: "Scanning your mental notes to find the exact logical thread you lost.", b: "Regulating your body language so the audience doesn't see you 'fail'.", c: "Checking the audience's faces to see if the silence is actually working in your favor." },
-    { q: "In a meeting with higher-status individuals, your speech pattern shifts to:", a: "More formal, precise, and technical to establish your 'right' to be there.", b: "Warm, agreeable, and encouraging to build social cohesion.", c: "Brief, direct, and outcome-focused, often using longer silences." },
-    { q: "A peer tells you your talk was 'too technical'. Your first reflex is:", a: "To explain the complexity of the subject matter that required that depth.", b: "To feel a sense of social regret for not 'connecting' better.", c: "To calculate if that technicality prevented the decision-maker from acting." }
+    { cat: "Status Regulation", q: "A high-status executive arrives 10 minutes late to your session. Your immediate reflex is:", a: "Pause and offer a concise summary of what they missed to be helpful.", b: "Smile warmly and wait for them to settle before continuing.", c: "Acknowledge them with a nod but keep speaking to protect the group's time." },
+    { cat: "Cognitive Load", q: "The audience looks confused by a complex diagram. You:", a: "Provide a detailed technical breakdown of every component for clarity.", b: "Apologize for the complexity and move to a simpler slide immediately.", c: "Silence yourself. Let them look, then ask: 'Which part of this feels wrong?'" },
+    { cat: "Conflict Bias", q: "A stakeholder gives you a backhanded compliment: 'That was surprisingly good.'", a: "Thank them and provide more data to justify their positive surprise.", b: "Accept the compliment graciously to maintain a positive social vibe.", c: "Ignore the 'compliment' and ask: 'What about it was different than you expected?'" },
+    { cat: "Outcome Ownership", q: "You finish your pitch. The room is silent. You feel the urge to:", a: "Ask if anyone needs more technical clarification on the data.", b: "Tell a light joke to break the tension and make everyone comfortable.", c: "Hold the silence until someone else speaks first, regardless of the discomfort." },
+    { cat: "Feedback Reception", q: "A mentor says your style is 'too cold.' Your first internal thought is:", a: "They must not value the importance of the technical accuracy I provide.", b: "I need to find a way to make them like me more in the next session.", c: "Is the 'coldness' a barrier to them trusting the final recommendation?" },
+    { cat: "Resource Allocation", q: "You have 5 minutes of 'bonus time' at the end. You use it to:", a: "Review the most difficult slide one more time to ensure 100% alignment.", b: "Ask the audience about their weekend plans to build rapport.", c: "Call out one person and ask for their specific commitment to the next step." },
+    { cat: "Presence Logic", q: "When you blank mid-sentence, where does your internal 'eye' look?", a: "At your notes—the data is the only safe way back to the flow.", b: "At the floor or ceiling—you are trying to manage your own embarrassment.", c: "At the person with the most power in the room—to see how they are reacting." },
+    { cat: "Authority Drift", q: "You are asked a question you don't know the answer to. You:", a: "Give a long, technical explanation of related topics to maintain authority.", b: "Promise to find out immediately and apologize for not knowing.", c: "Say 'I don't have that data,' and ask 'Why is that specific variable crucial to you?'" },
+    { cat: "Visual Dependency", q: "You notice a typo on your slide mid-presentation. You:", a: "Point it out and correct it verbally to ensure the record is accurate.", b: "Internalize the mistake and feel your confidence drop for the next 5 minutes.", c: "Ignore it completely. The typo has zero impact on the audience's decision." },
+    { cat: "Action Intent", q: "Your final slide is on the screen. What is it?", a: "A summary of all technical findings and contact information.", b: "A 'Thank You' slide with an inspirational quote.", c: "A single, large font command or a provocative question." }
 ];
 
-// Weighted values: [Rigidity, Validation, Friction]
-const weights = [
+// Weighted Scoring [Informational Rigidity, Social Validation, Outcome Friction]
+const scores = [
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
+    { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
     { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
     { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
     { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] },
@@ -95,57 +112,59 @@ const weights = [
     { A: [2, 0, 0], B: [0, 2, 0], C: [0, 0, 2] }
 ];
 
-let currentIdx = 0;
-let userAnswers = new Array(questions.length).fill(null);
+let current = 0;
+let answers = new Array(10).fill(null);
 
 function render() {
-    const container = document.getElementById('question-container');
-    const q = questions[currentIdx];
-    container.innerHTML = `
-        <div class="question-text">${q.q}</div>
-        <div class="option-container">
-            <button class="option ${userAnswers[currentIdx]==='A'?'selected':''}" onclick="setAns('A')">${q.a}</button>
-            <button class="option ${userAnswers[currentIdx]==='B'?'selected':''}" onclick="setAns('B')">${q.b}</button>
-            <button class="option ${userAnswers[currentIdx]==='C'?'selected':''}" onclick="setAns('C')">${q.c}</button>
-        </div>
-    `;
-    document.getElementById('progress-fill').style.width = `${((currentIdx + 1) / questions.length) * 100}%`;
-    document.getElementById('prev-btn').disabled = currentIdx === 0;
-    document.getElementById('next-btn').disabled = userAnswers[currentIdx] === null;
-    document.getElementById('next-btn').innerText = currentIdx === questions.length - 1 ? "FINALIZE VETTING" : "NEXT STEP →";
+    const q = questions[current];
+    document.getElementById('q-category').innerText = q.cat;
+    document.getElementById('q-text').innerText = q.q;
+    document.getElementById('opt-list').innerHTML = ['A','B','C'].map(l => `
+        <button class="opt-btn ${answers[current]===l?'selected':''}" onclick="setAns('${l}')">
+            <div class="opt-letter">${l}</div> ${q[l.toLowerCase()]}
+        </button>
+    `).join('');
+    
+    document.getElementById('p-fill').style.width = `${((current + 1)/10)*100}%`;
+    document.getElementById('next').innerText = current === 9 ? "Finish" : "Next →";
+    document.getElementById('next').disabled = answers[current] === null;
 }
 
-window.setAns = (v) => { userAnswers[currentIdx] = v; render(); };
-window.prev = () => { currentIdx--; render(); };
-window.next = () => { if(currentIdx < questions.length - 1) { currentIdx++; render(); } else { showResults(); } };
+window.setAns = (l) => { answers[current] = l; render(); };
+window.move = (dir) => { 
+    if(dir === 1 && current === 9) return showResults();
+    current += dir; render(); 
+};
 
 function showResults() {
     document.getElementById('quiz-ui').style.display = 'none';
     document.getElementById('results').style.display = 'block';
+    
+    let totals = [0, 0, 0];
+    answers.forEach((a, i) => scores[i][a].forEach((v, idx) => totals[idx] += v));
 
-    let totals = [0, 0, 0]; // Rigidity, Validation, Friction
-    userAnswers.forEach((ans, i) => {
-        weights[i][ans].forEach((val, index) => totals[index] += val);
-    });
-
-    const categories = [
-        { name: "Informational Rigidity", val: totals[0], color: "#ef4444", d: "You prioritize data accuracy over human movement. You likely overwhelm stakeholders with 'The How' while they are looking for 'The Why'.", t: ["Cut your decks by 60%.", "Focus on the 'Diagnosis' rather than the 'Description'."] },
-        { name: "Validation Dependency", val: totals[1], color: "#f59e0b", d: "You prioritize social harmony and personal likability. You likely 'soften' your message so much that it loses its edge and urgency.", t: ["Speak 20% slower.", "Practice delivering bad news without a smile."] },
-        { name: "Strategic Friction", val: totals[2], color: "#10b981", d: "You focus on outcomes but may lack the technical or social 'buy-in' to make them stick. You risk being viewed as too transactional.", t: ["Anchor your challenges in shared data.", "Use 'We' instead of 'I' during calls to action."] }
+    const data = [
+        { name: "Informational Rigidity", val: totals[0], color: "#ef4444", d: "You use data as a shield. When pressure rises, you retreat into 'The What' and lose 'The Why.'", t: ["Cut slides by 50%.", "Practice 'The Silence' for 4 seconds after every data point."] },
+        { name: "Social Validation", val: totals[1], color: "#f59e0b", d: "You prioritize harmony. You're liked, but your message lacks the 'sting' required to drive change.", t: ["Stop smiling when delivering critical insights.", "Use fewer 'permission' words like 'Does that make sense?'"] },
+        { name: "Outcome Friction", val: totals[2], color: "#10b981", d: "You are focused on the win, but may be alienating your team or stakeholders through transactional energy.", t: ["Anchor challenges in shared goals.", "Spend more time on 'The Diagnosis' before 'The Fix.'"] }
     ];
 
-    const meterContainer = document.getElementById('risk-meters');
-    meterContainer.innerHTML = categories.map(c => `
-        <div class="risk-label">${c.name}</div>
-        <div class="risk-meter"><div class="risk-fill" style="width:${(c.val/10)*100}%; background:${c.color};"></div></div>
+    document.getElementById('meters').innerHTML = data.map(d => `
+        <div class="risk-item">
+            <div style="display:flex; justify-content:space-between; font-weight:800; font-size:0.75rem; text-transform:uppercase;">
+                <span>${d.name}</span><span>${(d.val/20)*100}% Risk</span>
+            </div>
+            <div class="meter"><div class="fill" style="width:${(d.val/20)*100}%; background:${d.color};"></div></div>
+        </div>
     `).join('');
 
-    const topRisk = categories.sort((a,b) => b.val - a.val)[0];
-    document.getElementById('leak-desc').innerText = topRisk.d;
-    document.getElementById('protocol-list').innerHTML = topRisk.t.map(t => `<li>${t}</li>`).join('');
+    const top = data.sort((a,b) => b.val - a.val)[0];
+    document.getElementById('top-risk-title').innerText = top.name;
+    document.getElementById('risk-desc').innerText = top.d;
+    document.getElementById('protocol').innerHTML = top.t.map(li => `<li>${li}</li>`).join('');
 }
 
-window.savePDF = () => { html2pdf().from(document.getElementById('pdf-content')).save('Vetting_Analysis.pdf'); };
+window.savePDF = () => html2pdf().from(document.getElementById('pdf-content')).save('Vetting_Analysis.pdf');
 
 render();
 </script>
