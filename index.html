@@ -3,195 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speaker Leadership Index (SLI) - Pro Report</title>
+    <title>SLI Diagnostic - Stable PDF Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
-            --slate-900: #0f172a; --slate-800: #1e293b; --blue-600: #2563eb;
-            --emerald-500: #10b981; --text-main: #334155; --text-light: #64748b;
+            --slate-900: #0f172a; --blue-600: #2563eb;
+            --emerald-500: #10b981; --text-main: #334155;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: var(--text-main); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
-        .container { background: #fff; width: 100%; max-width: 850px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); padding: 50px; border: 1px solid #e2e8f0; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; }
+        .wrapper { width: 100%; max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 
-        /* Typography */
-        h1 { font-family: 'Playfair Display', serif; color: var(--slate-900); font-size: 2.2rem; margin-bottom: 10px; }
-        .subtitle { color: var(--text-light); font-size: 1.1rem; margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
-
-        /* Quiz UI Elements */
-        .scenario-tag { background: #eff6ff; color: var(--blue-600); padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; margin-bottom: 15px; display: inline-block; }
-        .question-text { font-size: 1.3rem; font-weight: 600; line-height: 1.4; color: var(--slate-900); margin-bottom: 30px; }
-        .opt-btn { background: #fff; border: 2px solid #e2e8f0; padding: 18px; border-radius: 12px; text-align: left; cursor: pointer; width: 100%; margin-bottom: 12px; display: flex; align-items: center; font-size: 1rem; transition: 0.2s; }
-        .opt-btn:hover { border-color: var(--blue-600); background: #f0f7ff; }
-        .opt-btn.selected { border-color: var(--blue-600); background: #eff6ff; font-weight: 600; }
-        .opt-idx { width: 28px; height: 28px; background: var(--slate-900); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0; }
+        /* Scannable Quiz UI */
+        .q-box { margin-bottom: 30px; }
+        .q-text { font-size: 1.25rem; font-weight: 700; color: var(--slate-900); margin-bottom: 20px; }
+        .opt { display: block; width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid #e2e8f0; border-radius: 8px; text-align: left; cursor: pointer; transition: 0.2s; font-family: inherit; }
+        .opt:hover { border-color: var(--blue-600); }
+        .opt.selected { background: #eff6ff; border-color: var(--blue-600); font-weight: 600; }
 
         /* Progress Bar */
-        .progress-container { margin-top: 30px; }
-        .bar-bg { background: #e2e8f0; height: 8px; border-radius: 10px; overflow: hidden; }
-        .bar-fill { background: var(--blue-600); height: 100%; width: 0%; transition: width 0.4s ease; }
+        .prog-bg { background: #e2e8f0; height: 8px; border-radius: 4px; margin: 20px 0; }
+        .prog-fill { background: var(--blue-600); height: 100%; width: 0%; border-radius: 4px; transition: 0.3s; }
 
-        /* Results & PDF Formatting */
-        #results-area { display: none; }
+        /* Results Display */
+        #results-ui { display: none; }
+        
+        /* PDF Specific Formatting - Critical for Stability */
+        .pdf-page { padding: 20px; background: white; }
         .pillar-card { 
-            background: #fff; border: 1px solid #e2e8f0; border-left: 8px solid var(--blue-600);
-            padding: 30px; margin-bottom: 25px; border-radius: 12px;
-            page-break-inside: avoid; /* Prevents cutting the card in half */
+            border: 1px solid #e2e8f0; border-left: 8px solid var(--blue-600);
+            padding: 25px; margin-bottom: 20px; border-radius: 10px;
+            page-break-inside: avoid; /* Standard break prevention */
         }
-        .percentage-val { font-size: 2.5rem; font-weight: 800; color: var(--blue-600); }
-        .section-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; display: block; margin-top: 20px; color: var(--slate-900); }
-        .report-body { line-height: 1.6; font-size: 1rem; margin-top: 5px; color: var(--text-main); }
+        .pct-label { font-size: 2rem; font-weight: 800; color: var(--blue-600); }
+        .label { font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #64748b; margin-top: 15px; display: block; }
+        
+        /* Force page break for PDF engine */
+        .html2pdf__page-break { display: block; height: 1px; page-break-before: always; }
 
-        /* Navigation */
-        .nav { display: flex; justify-content: space-between; margin-top: 40px; }
-        .btn { padding: 14px 28px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        .btn-main { background: var(--slate-900); color: white; }
-        .btn-sec { background: #e2e8f0; color: var(--text-main); }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        @media print {
-            .btn, .nav, .progress-container { display: none !important; }
-        }
+        .btn { padding: 12px 24px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; margin-right: 10px; }
+        .btn-primary { background: var(--slate-900); color: white; }
+        .btn-secondary { background: #e2e8f0; color: var(--text-main); }
+        .btn:disabled { opacity: 0.3; }
     </style>
 </head>
 <body>
 
-<div class="container" id="app">
+<div class="wrapper" id="main-app">
     <div id="quiz-ui">
-        <h1>Speaker Leadership Index</h1>
-        <p class="subtitle">Diagnostic Analysis of Presence & Influence</p>
-        
-        <div id="q-render"></div>
-
-        <div class="nav">
-            <button class="btn btn-sec" id="prev" onclick="move(-1)">Back</button>
-            <button class="btn btn-main" id="next" onclick="move(1)" disabled>Next Step</button>
+        <h2 style="font-family: 'Playfair Display'; font-size: 2rem;">Speaker Leadership Index</h2>
+        <div class="prog-bg"><div class="prog-fill" id="p-bar"></div></div>
+        <div id="q-container"></div>
+        <div style="margin-top: 30px;">
+            <button class="btn btn-secondary" onclick="change(-1)" id="prev-btn">Back</button>
+            <button class="btn btn-primary" onclick="change(1)" id="next-btn" disabled>Next</button>
         </div>
     </div>
 
-    <div id="results-area">
-        <div id="pdf-export-target">
-            <div style="text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #0f172a;">
-                <h1 style="font-size: 2.8rem; margin: 0;">SLI Performance Audit</h1>
-                <p style="font-size: 1.1rem; color: #64748b; margin-top: 5px;">A percentage-based breakdown of your public influence potential.</p>
-                <div id="final-archetype" style="margin-top: 20px; font-size: 1.8rem; font-weight: 800; color: var(--blue-600);"></div>
+    <div id="results-ui">
+        <div id="pdf-container">
+            <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 20px; margin-bottom: 30px;">
+                <h1 style="font-family: 'Playfair Display'; margin:0;">SLI Executive Analysis</h1>
+                <p style="color: #64748b;">A Comprehensive Public Speaking Leadership Diagnostic</p>
+                <h2 id="final-archetype" style="color: var(--blue-600); font-size: 1.8rem;"></h2>
             </div>
             
             <div id="pillar-results"></div>
-
-            <div class="pillar-card" style="border-left-color: #10b981;">
-                <span class="section-label">Executive Summary</span>
-                <p class="report-body">This index is calculated based on your natural responses to high-stakes communication scenarios. A higher percentage reflects a "Full Being" approach where the mind, heart, and will are unified.</p>
-            </div>
         </div>
 
-        <div class="nav">
-            <button class="btn btn-sec" onclick="location.reload()">Reset Audit</button>
-            <button class="btn btn-main" onclick="downloadReport()">Download PDF Report</button>
+        <div style="margin-top: 30px; text-align: center;" class="no-print">
+            <button class="btn btn-secondary" onclick="location.reload()">Restart</button>
+            <button class="btn btn-primary" onclick="downloadPDF()">Download Stable PDF</button>
         </div>
     </div>
 </div>
 
 <script>
 const scenarios = [
-    { p: "Confidence", q: "When you stand before an audience, what is your primary mental focus?", opts: ["The accuracy of my notes", "How I am being perceived", "The truth of the message itself"] },
-    { p: "Connection", q: "An audience member appears disinterested. How do you respond?", opts: ["Stick to the planned structure", "Increase my vocal volume", "Pause and adjust to bring them in"] },
-    { p: "Clarity", q: "You realize your explanation is becoming overly complex. You:", opts: ["Finish the thought as prepared", "Summarize the key point quickly", "Simplify the concept until they 'see' it"] },
-    { p: "Transformation", q: "What is the ultimate goal of your conclusion?", opts: ["To summarize the facts", "To receive positive feedback", "To inspire a shift in the audience's identity"] },
-    { p: "Confidence", q: "You feel a surge of nervous energy before starting. You see this as:", opts: ["A sign of poor preparation", "Something to be suppressed", "A 'positive force' to be utilized"] },
-    { p: "Connection", q: "How do you use 'The Pause' during your delivery?", opts: ["Rarely, I fear the silence", "When I need to check my notes", "To allow the audience to catch up and reflect"] },
-    { p: "Clarity", q: "When answering a difficult question, your priority is:", opts: ["Proving my expertise", "Giving a quick answer", "Ensuring the answer serves the message"] },
-    { p: "Transformation", q: "Your message is running out of time. Your move is to:", opts: ["Talk faster to cover it all", "Stop exactly on the dot", "Focus only on the single most vital impact point"] },
-    { p: "Confidence", q: "Your mind goes blank for three seconds. You:", opts: ["Apologize to the audience", "Feel embarrassed and rush", "Trust the flow and pause until it returns"] },
-    { p: "Connection", q: "The room feels 'cold' and unresponsive. You:", opts: ["Ignore it and keep going", "Try to be more entertaining", "Ground yourself and speak with more sincerity"] }
+    { p: "Connection", q: "Scenario 1: You step forward. The room is quiet, but attention feels distant.", opts: ["A. Begin with your prepared opening and allow your message to unfold.", "B. Adjust your tone and observe how the audience responds as you begin.", "C. Pause briefly and begin in a way that brings them into the moment with you."] },
+    { p: "Confidence", q: "Scenario 2: In the middle of speaking, your mind goes blank for a moment.", opts: ["A. Continue forward, trusting the flow will return.", "B. Pause briefly, collect your thoughts, and continue.", "C. Acknowledge the moment naturally and rebuild the flow."] },
+    { p: "Clarity", q: "Scenario 3: Someone asks a question that shifts the direction of your talk.", opts: ["A. Respond briefly and return to your structure.", "B. Explore the question and connect it to your message.", "C. Allow the moment to reshape the direction of the conversation."] },
+    { p: "Connection", q: "Scenario 4: You sense they are listening, but not fully engaged.", opts: ["A. Continue, trusting the message will land.", "B. Adjust your delivery to better align with them.", "C. Shift your approach to bring them into active participation."] },
+    { p: "Confidence", q: "Scenario 5: You feel nervous energy rising within you.", opts: ["A. Continue speaking, focusing on maintaining composure.", "B. Slow yourself and stabilize your pace.", "C. Ground yourself fully before continuing."] },
+    { p: "Clarity", q: "Scenario 6: You realize their needs are different from what you prepared.", opts: ["A. Continue, knowing your message still carries value.", "B. Adjust your examples to better fit them.", "C. Reshape your message to meet them where they are."] },
+    { p: "Connection", q: "Scenario 7: An unexpected reaction emerges from the audience.", opts: ["A. Stay focused on your message.", "B. Acknowledge it briefly and continue.", "C. Use the moment to deepen engagement."] },
+    { p: "Transformation", q: "Scenario 8: Time is running out.", opts: ["A. Work to complete what you planned.", "B. Focus on what matters most.", "C. Ensure they leave with something that stays with them."] },
+    { p: "Transformation", q: "Scenario 9: You notice shifts in audience attention.", opts: ["A. Maintain your delivery.", "B. Adjust your presence slightly.", "C. Actively guide their attention and energy."] },
+    { p: "Transformation", q: "Scenario 10: You reach the end of your message.", opts: ["A. Conclude and allow them to reflect.", "B. Reinforce your key message clearly.", "C. Close in a way that changes how they see themselves or their next step."] }
 ];
 
 const feedback = {
-    "Confidence": { desc: "Measures your ability to subordinate 'self' to the message.", tip: "Face your audience frequently; 'plunge' into the water to learn to swim[cite: 3]." },
-    "Connection": { desc: "Measures the 'nameless thrill' and bridge between you and the hearer .", tip: "Use inflection as a 'running commentary' of your emotions[cite: 5]." },
-    "Clarity": { desc: "Measures efficiency through emphasis and the subordination of trifles .", tip: "Make your big words 'mountain peaks' and submerge the stream-beds." },
-    "Transformation": { desc: "Measures the power to change others' thoughts and wills [cite: 22].", tip: "All ideas result in action unless a contradictory thought is allowed[cite: 22]." }
+    "Connection": "Building a bridge between your intent and their reality. Leadership begins when the audience feels 'seen' by the speaker.",
+    "Confidence": "The internal state of grounding. It is the transition from self-consciousness to message-consciousness.",
+    "Clarity": "The architectural strength of your talk. It requires the courage to cut what is secondary to serve what is vital.",
+    "Transformation": "The ultimate goal: Impact. You are not giving information; you are facilitating a change in the listener."
 };
 
-let step = 0;
-let scores = new Array(scenarios.length).fill(null);
+let current = 0;
+let results = new Array(10).fill(null);
 
-function render() {
-    const s = scenarios[step];
-    document.getElementById('q-render').innerHTML = `
-        <span class="scenario-tag">${s.p} Analysis</span>
-        <div class="question-text">${s.q}</div>
-        ${s.opts.map((o, i) => `
-            <button class="opt-btn ${scores[step] === i+1 ? 'selected' : ''}" onclick="select(${i+1})">
-                <span class="opt-idx">${String.fromCharCode(65+i)}</span> ${o}
-            </button>
-        `).join('')}
-        <div class="progress-container">
-            <div class="bar-bg"><div class="bar-fill" style="width:${(step+1)*10}%"></div></div>
-        </div>
-    `;
-    document.getElementById('prev').disabled = step === 0;
-    document.getElementById('next').disabled = scores[step] === null;
-    document.getElementById('next').innerText = step === 9 ? "Generate Audit" : "Next Step";
+function renderQ() {
+    const s = scenarios[current];
+    let html = `<div class="q-box"><div class="q-text">${s.q}</div>`;
+    s.opts.forEach((o, i) => {
+        html += `<button class="opt ${results[current] === i+1 ? 'selected' : ''}" onclick="pick(${i+1})">${o}</button>`;
+    });
+    html += `</div>`;
+    document.getElementById('q-container').innerHTML = html;
+    document.getElementById('p-bar').style.width = `${(current + 1) * 10}%`;
+    document.getElementById('prev-btn').disabled = (current === 0);
+    document.getElementById('next-btn').disabled = (results[current] === null);
+    document.getElementById('next-btn').innerText = current === 9 ? "Finish" : "Next";
 }
 
-window.select = (v) => { scores[step] = v; render(); };
-window.move = (d) => { if(d===1 && step===9) { calculate(); return; } step += d; render(); };
+window.pick = (val) => { results[current] = val; renderQ(); };
+window.change = (dir) => { 
+    if (dir === 1 && current === 9) { showResults(); return; }
+    current += dir; renderQ(); 
+};
 
-function calculate() {
+function showResults() {
     document.getElementById('quiz-ui').style.display = 'none';
-    document.getElementById('results-area').style.display = 'block';
+    const ui = document.getElementById('results-ui');
+    ui.style.display = 'block';
 
-    const totals = { Confidence: 0, Connection: 0, Clarity: 0, Transformation: 0 };
-    const max = { Confidence: 0, Connection: 0, Clarity: 0, Transformation: 0 };
+    const totals = { Connection: 0, Confidence: 0, Clarity: 0, Transformation: 0 };
+    const counts = { Connection: 0, Confidence: 0, Clarity: 0, Transformation: 0 };
 
     scenarios.forEach((s, i) => {
-        totals[s.p] += scores[i];
-        max[s.p] += 3;
+        totals[s.p] += results[i];
+        counts[s.p]++;
     });
 
-    let resHtml = "";
+    let html = "";
     Object.keys(totals).forEach(p => {
-        const pct = Math.round((totals[p] / max[p]) * 100);
-        resHtml += `
+        // Percentage: (Score / (Questions * MaxScore of 3)) * 100
+        const pct = Math.round((totals[p] / (counts[p] * 3)) * 100);
+        html += `
             <div class="pillar-card">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:1.6rem; font-weight:800; color:#0f172a;">${p} Index</span>
-                    <span class="percentage-val">${pct}%</span>
+                    <span style="font-size:1.4rem; font-weight:800;">${p} Index</span>
+                    <span class="pct-label">${pct}%</span>
                 </div>
-                <div class="bar-bg" style="margin: 15px 0; height:12px;">
-                    <div class="bar-fill" style="width:${pct}%; background:#2563eb;"></div>
-                </div>
-                <span class="section-label" style="color:#2563eb;">The Definition</span>
-                <p class="report-body">${feedback[p].desc}</p>
-                <span class="section-label" style="color:#10b981;">Performance Strategy</span>
-                <p class="report-body">${feedback[p].tip}</p>
+                <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
+                <span class="label">Strategic Context</span>
+                <p style="margin:5px 0 0; line-height:1.5;">${feedback[p]}</p>
             </div>
         `;
     });
-    document.getElementById('pillar-results').innerHTML = resHtml;
     
-    const grandSum = scores.reduce((a, b) => a + b, 0);
-    const archetype = grandSum > 26 ? "Master Influencer" : grandSum > 18 ? "Skilled Communicator" : "Emerging Voice";
-    document.getElementById('final-archetype').innerText = `Your Profile: ${archetype}`;
+    document.getElementById('pillar-results').innerHTML = html;
+    const sum = results.reduce((a, b) => a + b, 0);
+    document.getElementById('final-archetype').innerText = sum > 25 ? "The Transformational Leader" : sum > 18 ? "The Adaptive Speaker" : "The Foundational Communicator";
 }
 
-function downloadReport() {
-    const element = document.getElementById('pdf-export-target');
+async function downloadPDF() {
+    const element = document.getElementById('pdf-container');
     const opt = {
-        margin: [0.5, 0.5],
-        filename: 'SLI_Percentage_Report.pdf',
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: 'SLI_Leadership_Report.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false,
+            width: 1024 // Forces a stable width to prevent clipping
+        },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        pagebreak: { mode: ['css', 'legacy'] }
     };
-    html2pdf().set(opt).from(element).save();
+
+    // Use the .from().set().save() chain for maximum reliability
+    html2pdf().from(element).set(opt).save();
 }
 
-render();
+renderQ();
 </script>
 </body>
 </html>
