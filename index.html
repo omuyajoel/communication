@@ -3,458 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The 4-Pillar Public Speaking Diagnostic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <title>SLI | The Speaker Leadership Index</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --primary: #2C3E50; 
-            --secondary: #18BC9C; 
-            --text-main: #333333;
-            --text-muted: #7f8c8d;
-            --danger: #e74c3c;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --gold: #d4af37;
+            --white: #ffffff;
+            --accent: #38bdf8;
+            --text-gray: #94a3b8;
         }
 
         body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--slate-900);
+            color: var(--white);
             margin: 0;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
             padding: 20px;
         }
 
-        /* We remove overflow:hidden here to prevent PDF clipping */
-        .container {
-            background-color: var(--card-bg);
+        .discovery-container {
+            background: var(--slate-800);
             width: 100%;
-            max-width: 900px;
-            border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            padding: 40px 50px;
+            max-width: 800px;
+            border-radius: 2px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 60px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
             position: relative;
         }
 
-        h1, h2, h3, h4 { font-family: 'Montserrat', sans-serif; margin-top: 0; color: var(--primary); }
-        
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #ecf0f1; padding-bottom: 20px; }
-        .header h1 { font-size: 2.2rem; font-weight: 800; }
-        .header p { color: var(--text-muted); font-size: 1.1rem; }
+        /* Branding */
+        .sli-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            display: block;
+            text-align: center;
+        }
 
-        /* Progress Bar */
-        .progress-wrap { margin-bottom: 30px; }
-        .progress-text { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--secondary); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; }
-        .progress-track { width: 100%; height: 8px; background: #ecf0f1; border-radius: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 0.4s ease; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; line-height: 1.2; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: var(--text-gray); text-align: center; margin-bottom: 50px; font-weight: 300; letter-spacing: 0.05em; }
 
-        /* Quiz UI */
-        .q-meta { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; display: block; font-weight: 600; }
-        .question-text { font-size: 1.35rem; line-height: 1.5; margin-bottom: 30px; color: var(--primary); font-family: 'Montserrat', sans-serif;}
+        /* Progress Track */
+        .track-bg { width: 100%; height: 2px; background: rgba(255,255,255,0.1); margin-bottom: 40px; position: relative; }
+        .track-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--gold); transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
 
-        .options-grid { display: grid; gap: 12px; }
-        .option-btn {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            color: var(--text-main);
-            padding: 16px 24px;
-            border-radius: 8px;
+        /* Question UI */
+        .scenario-box { min-height: 350px; }
+        .scenario-label { color: var(--gold); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 15px; display: block; }
+        .scenario-text { font-size: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 400; line-height: 1.4; margin-bottom: 40px; }
+
+        .option-list { display: flex; flex-direction: column; gap: 15px; }
+        .option-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px 25px;
             cursor: pointer;
-            text-align: left;
-            font-size: 1.05rem;
-            font-family: inherit;
-            transition: all 0.2s ease;
+            transition: 0.3s;
             display: flex;
             align-items: center;
+            font-size: 1.1rem;
+            color: var(--white);
         }
-        .option-btn:hover { border-color: var(--secondary); background: #f0fbf9; }
-        .option-btn.selected { border-color: var(--secondary); background: #e8f8f5; font-weight: 600; }
-        .opt-letter { width: 32px; min-width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 20px; font-weight: bold; color: white; }
-
-        /* Navigation */
-        .nav-footer { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 2px solid #ecf0f1; }
-        .btn { padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: none; }
-        .btn-prev { background: #ecf0f1; color: var(--text-muted); }
-        .btn-prev:hover:not(:disabled) { background: #bdc3c7; color: var(--primary); }
-        .btn-prev:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-next { background: var(--primary); color: white; }
-        .btn-next:hover:not(:disabled) { background: #34495e; }
-        .btn-next:disabled { opacity: 0.5; cursor: not-allowed; }
+        .option-item:hover { background: rgba(212, 175, 55, 0.05); border-color: var(--gold); }
+        .option-item.active { background: rgba(212, 175, 55, 0.15); border-color: var(--gold); }
+        .opt-mark { width: 10px; height: 10px; border: 1px solid var(--gold); margin-right: 20px; border-radius: 50%; }
+        .option-item.active .opt-mark { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 
         /* Results UI */
-        #results-ui { display: none; }
-        
-        /* PDF specific wrapper */
-        #pdf-content { padding: 10px; background: white; }
-        
-        .result-header { text-align: center; margin-bottom: 40px; }
-        .archetype { font-size: 2.5rem; color: var(--secondary); margin: 10px 0; font-weight: 800;}
-        
-        .pillar-grid { display: grid; grid-template-columns: 1fr; gap: 25px; margin-bottom: 20px; }
-        
-        /* crucial for PDF: prevents card from splitting across pages */
-        .pillar-card { 
-            background: #f8f9fa; 
-            padding: 25px; 
-            border-radius: 8px; 
-            border-left: 5px solid var(--primary);
-            page-break-inside: avoid; 
-        }
-        
-        .pillar-title { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; font-weight: 700; }
-        
-        .feedback-box { margin-top: 15px; }
-        .strength-text { color: var(--secondary); font-size: 1rem; font-weight: bold; margin-bottom: 8px; display: block; }
-        .forward-text { color: var(--text-main); font-size: 1.05rem; line-height: 1.6; }
-        .forward-text strong { color: var(--danger); }
+        #results-screen { display: none; }
+        .report-header { text-align: center; margin-bottom: 50px; }
+        .identity-badge { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--gold); margin: 20px 0; }
+        .level-tag { text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.8rem; color: var(--text-gray); }
 
-        @keyframes fade { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
-        .animate { animation: fade 0.3s ease forwards; }
+        .pillar-analysis { margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; }
+        .pillar-card { margin-bottom: 30px; page-break-inside: avoid; }
+        .pillar-name { font-weight: 800; text-transform: uppercase; font-size: 0.9rem; color: var(--gold); margin-bottom: 10px; display: block; }
+        .pillar-desc { line-height: 1.6; color: #cbd5e1; }
 
-        @media (max-width: 600px) {
-            .container { padding: 20px; }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 15px 40px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 40px;
+            transition: 0.3s;
         }
+        .nav-btn:hover { background: var(--gold); color: var(--slate-900); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: fadeIn 0.5s ease forwards; }
+
+        /* PDF Styling */
+        #pdf-export-area { padding: 40px; background: #0f172a; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="quiz-ui">
-        <div class="header">
-            <h1>The Public Speaking Matrix</h1>
-            <p>Evaluating Confidence, Clarity, Connection, and Transformation</p>
-        </div>
+<div class="discovery-container">
+    <span class="sli-logo">Speaker Leadership Index</span>
 
-        <div class="progress-wrap">
-            <div class="progress-text">
-                <span id="p-text">Scenario 1 of 20</span>
-                <span id="p-pillar">Pillar: Confidence</span>
+    <div id="quiz-screen">
+        <h1>Discover Your Leadership Identity</h1>
+        <p class="subtitle">It is revealed when you respond, not when you prepare.</p>
+
+        <div class="track-bg"><div class="track-fill" id="progress"></div></div>
+
+        <div class="scenario-box animate" id="scenario-container">
             </div>
-            <div class="progress-track"><div class="progress-fill" id="p-fill"></div></div>
-        </div>
-
-        <div class="animate" id="q-container"></div>
-
-        <div class="nav-footer">
-            <button class="btn btn-prev" id="btn-prev" onclick="move(-1)">← Previous</button>
-            <button class="btn btn-next" id="btn-next" onclick="move(1)">Next →</button>
-        </div>
     </div>
 
-    <div id="results-ui">
-        <div id="pdf-content">
-            <div class="result-header">
-                <h3>Diagnostic Complete</h3>
-                <h1 class="archetype" id="res-archetype">Analyzing...</h1>
-                <p id="res-desc" style="font-size: 1.1rem; color: var(--text-muted); max-width: 700px; margin: 0 auto; line-height: 1.6;"></p>
+    <div id="results-screen">
+        <div id="pdf-export-area">
+            <div class="report-header">
+                <span class="level-tag" id="res-level">Leadership Level</span>
+                <h1 class="identity-badge" id="res-identity">The Catalyst</h1>
+                <p id="res-experience" style="font-style: italic; color: var(--text-gray); margin-bottom: 30px;"></p>
             </div>
 
-            <h3 style="border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 25px;">Your Pillar Analysis & Way Forward</h3>
-            <div class="pillar-grid" id="pillar-grid"></div>
+            <div class="pillar-analysis">
+                <div class="pillar-card">
+                    <span class="pillar-name">Your Natural Presence</span>
+                    <p class="pillar-desc" id="res-desc"></p>
+                </div>
+                <div class="pillar-card">
+                    <span class="pillar-name">Growth Focus</span>
+                    <p class="pillar-desc" id="res-growth" style="color: var(--accent);"></p>
+                </div>
+            </div>
         </div>
 
-        <div class="nav-footer" id="action-buttons">
-            <button class="btn btn-prev" onclick="location.reload()">Retake Diagnostic</button>
-            <button class="btn btn-next" id="pdf-btn" onclick="downloadPDF()">Export PDF Report</button>
+        <div style="text-align: center;">
+            <button class="nav-btn" onclick="downloadReport()">Download Executive Report</button>
+            <p style="margin-top: 20px; font-size: 0.8rem; color: var(--text-gray);">Qualified for Inner Circle Selection</p>
         </div>
     </div>
 </div>
 
 <script>
-// SCORING LOGIC: 0 = Low (Friction), 1 = Mid (Mechanical), 2 = High (Mastery)
-const quizData = [
-    // PILLAR 1: CONFIDENCE
-    { pillar: 0, pName: "Confidence", q: "The Pre-Speech Panic: You are sitting on stage, waiting to be introduced. Your heart is hammering and self-consciousness takes over.", opts: [
-        { text: "Worry about how your clothes look and if the audience will notice your shaking hands.", val: 0 },
-        { text: "Repeat 'I am a great speaker' in your head to artificially hype up your ego.", val: 1 },
-        { text: "Subordinate yourself to your message. Focus entirely on the truth you are about to deliver.", val: 2 }
-    ]},
-    { pillar: 0, pName: "Confidence", q: "The Blank Mind: You are mid-sentence and your mind goes entirely blank. The silence stretches.", opts: [
-        { text: "Apologize profusely and fumble through your notes in a panic.", val: 0 },
-        { text: "Start rambling confidently about an unrelated tangent until your memory resets.", val: 1 },
-        { text: "Pause, pick up the last important word you just said, and build a new sentence from it.", val: 2 }
-    ]},
-    { pillar: 0, pName: "Confidence", q: "The Stumbling Start: Your opening line feels flat, and you feel the audience judging you.", opts: [
-        { text: "Immediately say, 'I didn't have much time to prepare...' to lower their expectations.", val: 0 },
-        { text: "Speak much louder and faster to force them to pay attention.", val: 1 },
-        { text: "Assume mastery. Do not apologize, keep a modestly confident bearing, and press forward.", val: 2 }
-    ]},
-    { pillar: 0, pName: "Confidence", q: "The Sniper: A hostile stakeholder interrupts you mid-presentation to challenge your core premise.", opts: [
-        { text: "Become defensive and flustered, losing your train of thought.", val: 0 },
-        { text: "Dismiss them with a witty remark to save your ego in front of the group.", val: 1 },
-        { text: "Face them fearlessly, validate their concern, and maintain absolute poise.", val: 2 }
-    ]},
-    { pillar: 0, pName: "Confidence", q: "The Physical Tension: You feel the 'stage fright' locking up your body just before speaking.", opts: [
-        { text: "Try to hide it by standing rigidly still like a statue.", val: 0 },
-        { text: "Pace erratically across the stage to burn off the nervous energy.", val: 1 },
-        { text: "Will your muscles into tensity for a purpose, channeling the fear into intense, dynamic energy.", val: 2 }
-    ]},
-
-    // PILLAR 2: CLARITY
-    { pillar: 1, pName: "Clarity", q: "The Complex Data: You have to explain a highly technical process to a non-technical audience.", opts: [
-        { text: "Use precise industry jargon to ensure you maintain total accuracy.", val: 0 },
-        { text: "Skip the mechanics entirely and just use vague, high-level buzzwords.", val: 1 },
-        { text: "Use a simple, everyday analogy that translates the unknown into the known.", val: 2 }
-    ]},
-    { pillar: 1, pName: "Clarity", q: "The Enunciation Trap: You are speaking rapidly to get through a large amount of material.", opts: [
-        { text: "Slur the ends of your words (e.g., 'doin' instead of 'doing') to maintain speed.", val: 0 },
-        { text: "Over-articulate every single syllable so you sound like a robot.", val: 1 },
-        { text: "Practice flexible lip movement to utter words with crisp distinctness without losing flow.", val: 2 }
-    ]},
-    { pillar: 1, pName: "Clarity", q: "The Rambling Structure: You have 15 minutes to speak, but you have 45 minutes of great material.", opts: [
-        { text: "Speak 3 times faster to ensure every single point is delivered.", val: 0 },
-        { text: "Talk until your 15 minutes are up, then stop, even if you are in the middle.", val: 1 },
-        { text: "Relentlessly cut out all ideas and words not necessary to produce a unified, clear point.", val: 2 }
-    ]},
-    { pillar: 1, pName: "Clarity", q: "The Word Search: You are trying to find the right word to describe a specific situation.", opts: [
-        { text: "Use generic words like 'very good' or 'really nice' to save time.", val: 0 },
-        { text: "Use an overly complex, obscure word to sound highly educated.", val: 1 },
-        { text: "Search faithfully for the exact right word that carries precise, dynamic meaning.", val: 2 }
-    ]},
-    { pillar: 1, pName: "Clarity", q: "The Abstract Concept: You are speaking about 'Liberty' or 'Justice.'", opts: [
-        { text: "Give a long, dictionary-style definition of the word.", val: 0 },
-        { text: "Assume everyone knows what it means and move on quickly.", val: 1 },
-        { text: "Expose the concept by defining its precise limits, contrasting it, and giving a concrete example.", val: 2 }
-    ]},
-
-    // PILLAR 3: CONNECTION
-    { pillar: 2, pName: "Connection", q: "The Scattered Flock: You are speaking to 30 people in an auditorium built for 500. They are spread out everywhere.", opts: [
-        { text: "Proceed with your speech, talking loudly to reach the back row.", val: 0 },
-        { text: "Focus your eye contact only on the 3 people sitting closest to you.", val: 1 },
-        { text: "Stop the presentation and warmly ask everyone to move down and sit compactly together.", val: 2 }
-    ]},
-    { pillar: 2, pName: "Connection", q: "The Emotional Wall: You are sharing a story about a massive failure that taught you a lesson.", opts: [
-        { text: "Read the story rigidly from your notes to remain 'professional.'", val: 0 },
-        { text: "Fake a trembling voice and use overly dramatic gestures to act out the pain.", val: 1 },
-        { text: "Enter deeply into the memory; let genuine, restrained feeling shine through your eyes.", val: 2 }
-    ]},
-    { pillar: 2, pName: "Connection", q: "The Glaring Distraction: Half the room is looking at their phones.", opts: [
-        { text: "Ignore them entirely and stick faithfully to your script.", val: 0 },
-        { text: "Yell louder and wave your arms to force them to look up.", val: 1 },
-        { text: "Pause. Drop your volume, walk closer, and ask a direct question to reset the room's energy.", val: 2 }
-    ]},
-    { pillar: 2, pName: "Connection", q: "The Conversational Link: You are delivering a prepared, formal address.", opts: [
-        { text: "Speak in a high, rhythmic, 'preacher' or 'orator' tone.", val: 0 },
-        { text: "Speak as casually and quietly as if you were on your living room couch.", val: 1 },
-        { text: "Use 'idealized nature'—a conversational tone enlarged to fit the size and dignity of the room.", val: 2 }
-    ]},
-    { pillar: 2, pName: "Connection", q: "The Absorption Pause: You just delivered the most profound, impactful sentence of your speech.", opts: [
-        { text: "Move immediately to the next bullet point to maintain momentum.", val: 0 },
-        { text: "Repeat the sentence three times in a row so they don't forget it.", val: 1 },
-        { text: "Stop speaking. Hold the silence for three seconds to let the idea soak into their minds.", val: 2 }
-    ]},
-
-    // PILLAR 4: TRANSFORMATION
-    { pillar: 3, pName: "Transformation", q: "The Hostile Crowd: You want to convince an audience that fundamentally disagrees with you.", opts: [
-        { text: "Hit them immediately with cold, hard statistics proving they are wrong.", val: 0 },
-        { text: "Tell them they are ignorant for not seeing the truth of your side.", val: 1 },
-        { text: "Secure their confidence first, find a shared belief, and appeal to their underlying emotions.", val: 2 }
-    ]},
-    { pillar: 3, pName: "Transformation", q: "The Authority Deficit: You need the audience to accept a difficult premise, but you are not a known expert.", opts: [
-        { text: "Add 'in my humble opinion' to every statement so you don't offend anyone.", val: 0 },
-        { text: "Bluff and pretend you have credentials you do not possess.", val: 1 },
-        { text: "Borrow authority by quoting recognized experts and citing unassailable facts.", val: 2 }
-    ]},
-    { pillar: 3, pName: "Transformation", q: "The Call to Action: You reach the end of your presentation and want them to act.", opts: [
-        { text: "Say 'Thank you for your time, any questions?' and sit down.", val: 0 },
-        { text: "Say 'Let's all go out and change the world together!' (Vague hype).", val: 1 },
-        { text: "Give a specific, direct command that appeals to their highest motives and self-interest.", val: 2 }
-    ]},
-    { pillar: 3, pName: "Transformation", q: "The Contagion of Action: You want the audience to volunteer for a difficult task.", opts: [
-        { text: "Wait in awkward silence until someone feels bad enough to raise their hand.", val: 0 },
-        { text: "Scold them for being apathetic and lazy.", val: 1 },
-        { text: "Use the psychology of the crowd: highlight others who have already stepped up to create a tide.", val: 2 }
-    ]},
-    { pillar: 3, pName: "Transformation", q: "The Ulterior Motive: You are trying to sell a product or an idea to the audience.", opts: [
-        { text: "Talk extensively about why you need them to buy it so you can hit your goals.", val: 0 },
-        { text: "List the features of the product in a dry, monotonous tone.", val: 1 },
-        { text: "Convert your arguments entirely into terms of the audience's advantage and interests.", val: 2 }
-    ]}
+const sliData = [
+    { q: "You step forward. The room is quiet, but attention feels distant.", opts: ["You begin with your prepared opening and allow your message to unfold.", "You adjust your tone and observe how the audience responds as you begin.", "You pause briefly and begin in a way that brings them into the moment with you."] },
+    { q: "In the middle of speaking, your mind goes blank for a moment.", opts: ["You continue forward, trusting the flow will return.", "You pause briefly, collect your thoughts, and continue.", "You acknowledge the moment naturally and rebuild the flow."] },
+    { q: "Someone asks a question that shifts the direction of your talk.", opts: ["You respond briefly and return to your structure.", "You explore the question and connect it to your message.", "You allow the moment to reshape the direction of the conversation."] },
+    { q: "You sense they are listening, but not fully engaged.", opts: ["You continue, trusting the message will land.", "You adjust your delivery to better align with them.", "You shift your approach to bring them into active participation."] },
+    { q: "You feel nervous energy rising within you.", opts: ["You continue speaking, focusing on maintaining composure.", "You slow yourself and stabilize your pace.", "You ground yourself fully before continuing."] },
+    { q: "You realize their needs are different from what you prepared.", opts: ["You continue, knowing your message still carries value.", "You adjust your examples to better fit them.", "You reshape your message to meet them where they are."] },
+    { q: "An unexpected reaction emerges from the audience.", opts: ["You stay focused on your message.", "You acknowledge it briefly and continue.", "You use the moment to deepen engagement."] },
+    { q: "Time is running out.", opts: ["You work to complete what you planned.", "You focus on what matters most.", "You ensure they leave with something that stays with them."] },
+    { q: "You notice shifts in audience attention.", opts: ["You maintain your delivery.", "You adjust your presence slightly.", "You actively guide their attention and energy."] },
+    { q: "You reach the end of your message.", opts: ["You conclude and allow them to reflect.", "You reinforce your key message clearly.", "You close in a way that changes how they see themselves or their next step."] }
 ];
 
-const reports = [
-    {
-        name: "Confidence (The Foundation)",
-        strength: "You possess a strong internal anchor. You understand that public speaking is an act of service, not an ego exhibition. You conquer stage fright by subordinating yourself to the message.",
-        weakness: "<strong>The Way Forward:</strong> You are currently leaking power to self-consciousness. Stop viewing yourself as an exhibit; you are a messenger. Never apologize for your nervousness. If your mind blanks, do not panic—simply pick up the last important word you said and build a new sentence. Will your physical tension into dynamic energy."
-    },
-    {
-        name: "Clarity (The Architecture)",
-        strength: "You are an architect of thought. You ruthlessly cut the clutter, translating complex ideas into simple analogies, and you articulate your words with crisp precision.",
-        weakness: "<strong>The Way Forward:</strong> Your message is currently getting lost in the transmission. You must relentlessly cut useless words and ideas. Do not rely on generic jargon or abstract concepts; use clear examples and analogies to explain the unknown by the known. Practice flexible lip movements to eradicate slovenly pronunciation."
-    },
-    {
-        name: "Connection (The Bridge)",
-        strength: "You build an immediate bridge to your audience. You know how to fuse scattered individuals into a crowd, and you use the 'Pause' masterfully to let your ideas penetrate their minds.",
-        weakness: "<strong>The Way Forward:</strong> You are 'performing' rather than 'connecting.' Never speak to a physically scattered audience—politely pack them together. Drop the 'orator' voice and use an enlarged conversational tone. Above all, do not rush. Hold a 3-second pause after every major point so the idea can soak in like rain into soil."
-    },
-    {
-        name: "Transformation (The Destination)",
-        strength: "You are a catalyst. You understand that logic informs, but emotion moves. You secure confidence, borrow authority, and frame your calls to action entirely in the audience's self-interest.",
-        weakness: "<strong>The Way Forward:</strong> You are currently arguing rather than persuading. Remember that a crowd does not reason, it feels. Do not attack them with cold logic; secure their confidence first. Borrow authority from recognized experts. When closing, do not ask for permission—give a specific, bold command framed in the audience's best interest."
-    }
-];
+let step = 0;
+let scores = [];
 
-let currentQ = 0;
-let userAnswers = new Array(20).fill(null);
+function renderStep() {
+    const data = sliData[step];
+    const container = document.getElementById('scenario-container');
+    document.getElementById('progress').style.width = `${((step + 1) / 10) * 100}%`;
 
-function render() {
-    const q = quizData[currentQ];
-    
-    document.getElementById('p-text').innerText = `Scenario ${currentQ + 1} of 20`;
-    document.getElementById('p-pillar').innerText = `Pillar: ${q.pName}`;
-    document.getElementById('p-fill').style.width = `${((currentQ + 1) / 20) * 100}%`;
+    let html = `
+        <span class="scenario-label">Scenario ${step + 1} of 10</span>
+        <div class="scenario-text">${data.q}</div>
+        <div class="option-list">
+    `;
 
-    const container = document.getElementById('q-container');
-    
-    // Seeded shuffle for visual variety
-    let displayOpts = q.opts.map((opt, index) => ({...opt, origIndex: index}));
-    let shuffleSeed = currentQ % 3; 
-    if (shuffleSeed === 1) displayOpts = [displayOpts[1], displayOpts[2], displayOpts[0]];
-    if (shuffleSeed === 2) displayOpts = [displayOpts[2], displayOpts[0], displayOpts[1]];
-
-    let html = `<div class="q-meta">${q.pName}</div>
-                <div class="question-text">${q.q}</div>
-                <div class="options-grid">`;
-    
-    const letters = ['A', 'B', 'C'];
-    displayOpts.forEach((opt, i) => {
-        const isSelected = userAnswers[currentQ] === opt.val;
-        html += `<button class="option-btn ${isSelected ? 'selected' : ''}" onclick="selectOpt(${opt.val})">
-                    <div class="opt-letter">${letters[i]}</div>
-                    <div>${opt.text}</div>
-                 </button>`;
-    });
-    html += `</div>`;
-    
-    container.classList.remove('animate');
-    void container.offsetWidth; 
-    container.innerHTML = html;
-    container.classList.add('animate');
-
-    document.getElementById('btn-prev').disabled = currentQ === 0;
-    const nextBtn = document.getElementById('btn-next');
-    nextBtn.disabled = userAnswers[currentQ] === null;
-    nextBtn.innerText = currentQ === 19 ? "View Full Report" : "Next →";
-}
-
-window.selectOpt = function(val) {
-    userAnswers[currentQ] = val;
-    render();
-}
-
-window.move = function(dir) {
-    if (dir === 1 && currentQ === 19) {
-        showResults();
-        return;
-    }
-    currentQ += dir;
-    render();
-}
-
-function showResults() {
-    document.getElementById('quiz-ui').style.display = 'none';
-    document.getElementById('results-ui').style.display = 'block';
-
-    // 4 Pillars: 0=Confidence, 1=Clarity, 2=Connection, 3=Transformation
-    let pillarScores = [0, 0, 0, 0];
-    userAnswers.forEach((ans, i) => {
-        const pIndex = quizData[i].pillar;
-        pillarScores[pIndex] += ans;
-    });
-
-    let totalScore = pillarScores.reduce((a, b) => a + b, 0);
-    
-    let archName = "";
-    let archDesc = "";
-    if (totalScore < 16) {
-        archName = "The Developing Speaker";
-        archDesc = "You are currently letting stage fright, lack of structure, and a misunderstanding of audience psychology hinder your true potential. Review the specific Way Forward protocols below to build your foundation.";
-    } else if (totalScore < 32) {
-        archName = "The Capable Presenter";
-        archDesc = "You have a solid grasp of the basics. You deliver information well, but you are occasionally sacrificing deep audience connection and true transformation for the sake of merely 'getting through the material.'";
-    } else {
-        archName = "The Master Communicator";
-        archDesc = "You possess an exceptional intuitive grasp of the four pillars. You lead with confidence, structure with clarity, connect with empathy, and persuade with power.";
-    }
-
-    document.getElementById('res-archetype').innerText = archName;
-    document.getElementById('res-desc').innerText = archDesc;
-
-    let gridHtml = "";
-    [0, 1, 2, 3].forEach(i => {
-        const score = pillarScores[i];
-        const max = 10;
-        const percent = (score / max) * 100;
-        
-        let feedbackHtml = "";
-        if (score >= 7) {
-            feedbackHtml = `
-                <div class="feedback-box">
-                    <span class="strength-text">✓ Strength Identified</span>
-                    <div class="forward-text">${reports[i].strength}</div>
-                </div>
-            `;
-        } else {
-            feedbackHtml = `
-                <div class="feedback-box">
-                    <div class="forward-text">${reports[i].weakness}</div>
-                </div>
-            `;
-        }
-
-        gridHtml += `
-            <div class="pillar-card">
-                <div class="pillar-title">
-                    <span>${reports[i].name}</span>
-                    <span style="color: var(--text-muted); font-size: 1rem;">Score: ${score}/10</span>
-                </div>
-                <div class="progress-track" style="background: #e9ecef; margin-bottom: 15px;">
-                    <div class="progress-fill" style="width: ${percent}%;"></div>
-                </div>
-                ${feedbackHtml}
+    data.opts.forEach((opt, i) => {
+        html += `
+            <div class="option-item" onclick="select(${i + 1})">
+                <div class="opt-mark"></div>
+                ${opt}
             </div>
         `;
     });
 
-    document.getElementById('pillar-grid').innerHTML = gridHtml;
+    html += `</div>`;
+    container.innerHTML = html;
 }
 
-window.downloadPDF = function() {
-    const btn = document.getElementById('pdf-btn');
-    btn.innerText = "Generating PDF...";
-    btn.disabled = true;
+function select(val) {
+    scores.push(val);
+    if (step < 9) {
+        step++;
+        renderStep();
+    } else {
+        processResults();
+    }
+}
 
-    // Target ONLY the content we want in the PDF (excluding the web buttons)
-    const element = document.getElementById('pdf-content');
-    
+function processResults() {
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('results-screen').style.display = 'block';
+
+    const total = scores.reduce((a, b) => a + b, 0);
+    const countA = scores.filter(x => x === 1).length;
+    const countB = scores.filter(x => x === 2).length;
+    const countC = scores.filter(x => x === 3).length;
+
+    let level = "";
+    let experience = "";
+    let desc = "";
+    let growth = "";
+    let identity = "";
+
+    // Score Range Assignments
+    if (total <= 14) {
+        level = "The Emerging Voice";
+        experience = "Steady. Observing. Developing.";
+        desc = "You have the foundation. Your leadership is present, but still forming under pressure.";
+        growth = "Trust your presence. Leadership begins when you stop protecting yourself and start guiding others.";
+    } else if (total <= 20) {
+        level = "The Structured Leader";
+        experience = "Reliable. Intentional. Increasingly influential.";
+        desc = "You bring intention and growing awareness. You are beginning to influence beyond your words.";
+        growth = "Move from delivering information to shaping experience.";
+    } else if (total <= 25) {
+        level = "The Influential Leader";
+        experience = "Confident. Engaging. Trustworthy.";
+        desc = "You do not just speak. You move people.";
+        growth = "Strengthen your ability to transform, not just engage.";
+    } else {
+        level = "The Transformational Leader";
+        experience = "Grounded. Certain. Transformative.";
+        desc = "Your presence creates change. People do not just hear you; they see differently because of you.";
+        growth = "Scale your influence. Others are ready to follow where you lead.";
+    }
+
+    // Identity Assignment based on dominant patterns
+    if (countC >= 6) identity = "The Catalyst";
+    else if (countC >= 3 || countB >= 5) identity = "The Guide";
+    else if (countB >= countA) identity = "The Builder";
+    else identity = "The Observer";
+
+    document.getElementById('res-level').innerText = `Leadership Level: ${level}`;
+    document.getElementById('res-identity').innerText = identity;
+    document.getElementById('res-experience').innerText = `How people experience you: ${experience}`;
+    document.getElementById('res-desc').innerText = desc;
+    document.getElementById('res-growth').innerText = growth;
+}
+
+function downloadReport() {
+    const element = document.getElementById('pdf-export-area');
     const opt = {
-        margin:       [0.4, 0.4, 0.4, 0.4], // Top, Left, Bottom, Right margins in inches
-        filename:     'Public_Speaking_Diagnostic_Report.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true, 
-            windowWidth: 900 // Forces a specific desktop width to prevent mobile styling in PDF
-        },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-        pagebreak:    { mode: 'css', avoid: '.pillar-card' } // Prevents cutting boxes in half
+        margin: 0.5,
+        filename: 'SLI_Leadership_Identity.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, backgroundColor: '#0f172a' },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
-
-    html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerText = "Export PDF Report";
-        btn.disabled = false;
-    });
+    html2pdf().set(opt).from(element).save();
 }
 
-// Init
-render();
+renderStep();
 </script>
-
 </body>
 </html>
