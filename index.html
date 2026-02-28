@@ -3,274 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SLI | The Speaker Leadership Index</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <title>Speaker Leadership Index (SLI)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
             --slate-900: #0f172a;
             --slate-800: #1e293b;
-            --gold: #d4af37;
+            --emerald-500: #10b981;
+            --blue-600: #2563eb;
+            --text-main: #334155;
+            --text-light: #64748b;
             --white: #ffffff;
-            --accent: #38bdf8;
-            --text-gray: #94a3b8;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--slate-900);
-            color: var(--white);
+            background-color: #f8fafc;
+            color: var(--text-main);
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
-        .discovery-container {
-            background: var(--slate-800);
+        .container {
+            background: var(--white);
             width: 100%;
-            max-width: 800px;
-            border-radius: 2px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 60px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
-            position: relative;
+            max-width: 850px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 50px;
+            border: 1px solid #e2e8f0;
         }
 
-        /* Branding */
-        .sli-logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 0.9rem;
-            letter-spacing: 0.3em;
-            color: var(--gold);
-            text-transform: uppercase;
-            margin-bottom: 40px;
-            display: block;
-            text-align: center;
-        }
+        h1 { font-family: 'Playfair Display', serif; color: var(--slate-900); font-size: 2.5rem; margin-bottom: 10px; }
+        .subtitle { color: var(--text-light); font-size: 1.1rem; margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
 
-        h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; line-height: 1.2; margin-bottom: 10px; text-align: center; }
-        .subtitle { color: var(--text-gray); text-align: center; margin-bottom: 50px; font-weight: 300; letter-spacing: 0.05em; }
+        /* Progress Tracker */
+        .progress-container { margin-bottom: 40px; }
+        .progress-label { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--blue-600); margin-bottom: 10px; }
+        .bar-bg { background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; }
+        .bar-fill { background: var(--blue-600); height: 100%; width: 0%; transition: width 0.4s ease; }
 
-        /* Progress Track */
-        .track-bg { width: 100%; height: 2px; background: rgba(255,255,255,0.1); margin-bottom: 40px; position: relative; }
-        .track-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--gold); transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
-
-        /* Question UI */
-        .scenario-box { min-height: 350px; }
-        .scenario-label { color: var(--gold); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 15px; display: block; }
-        .scenario-text { font-size: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 400; line-height: 1.4; margin-bottom: 40px; }
-
-        .option-list { display: flex; flex-direction: column; gap: 15px; }
-        .option-item {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px 25px;
+        /* Quiz UI */
+        .scenario-box { margin-bottom: 30px; }
+        .scenario-tag { background: #eff6ff; color: var(--blue-600); padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; margin-bottom: 15px; display: inline-block; }
+        .question-text { font-size: 1.4rem; font-weight: 600; line-height: 1.4; color: var(--slate-900); margin-bottom: 30px; }
+        
+        .options-list { display: grid; gap: 15px; }
+        .opt-btn {
+            background: var(--white);
+            border: 2px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: left;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
+            font-size: 1.05rem;
             display: flex;
             align-items: center;
-            font-size: 1.1rem;
-            color: var(--white);
+            font-family: inherit;
         }
-        .option-item:hover { background: rgba(212, 175, 55, 0.05); border-color: var(--gold); }
-        .option-item.active { background: rgba(212, 175, 55, 0.15); border-color: var(--gold); }
-        .opt-mark { width: 10px; height: 10px; border: 1px solid var(--gold); margin-right: 20px; border-radius: 50%; }
-        .option-item.active .opt-mark { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .opt-btn:hover { border-color: var(--blue-600); background: #f0f7ff; }
+        .opt-btn.selected { border-color: var(--blue-600); background: #eff6ff; font-weight: 600; }
+        .opt-idx { width: 30px; height: 30px; background: var(--slate-900); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 0.9rem; font-weight: 800; }
 
-        /* Results UI */
-        #results-screen { display: none; }
-        .report-header { text-align: center; margin-bottom: 50px; }
-        .identity-badge { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--gold); margin: 20px 0; }
-        .level-tag { text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.8rem; color: var(--text-gray); }
-
-        .pillar-analysis { margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; }
-        .pillar-card { margin-bottom: 30px; page-break-inside: avoid; }
-        .pillar-name { font-weight: 800; text-transform: uppercase; font-size: 0.9rem; color: var(--gold); margin-bottom: 10px; display: block; }
-        .pillar-desc { line-height: 1.6; color: #cbd5e1; }
-
-        .nav-btn {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 15px 40px;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 40px;
-            transition: 0.3s;
+        /* Results & PDF */
+        #results-area { display: none; }
+        .pillar-card { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            border-left: 6px solid var(--blue-600);
+            padding: 25px; 
+            margin-bottom: 20px; 
+            border-radius: 10px;
+            page-break-inside: avoid; /* Prevents PDF breaking */
         }
-        .nav-btn:hover { background: var(--gold); color: var(--slate-900); }
+        .pillar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .pillar-name { font-weight: 800; font-size: 1.2rem; color: var(--slate-900); }
+        .pillar-score { font-weight: 700; color: var(--blue-600); }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate { animation: fadeIn 0.5s ease forwards; }
+        .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 5px; margin-top: 15px; display: block; }
+        .strength { color: var(--emerald-500); }
+        .way-forward { color: #e11d48; }
+        .report-text { font-size: 1rem; line-height: 1.6; color: var(--text-main); }
 
-        /* PDF Styling */
-        #pdf-export-area { padding: 40px; background: #0f172a; color: white; }
+        .nav { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+        .btn { padding: 14px 28px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .btn-main { background: var(--slate-900); color: white; }
+        .btn-main:hover { background: #000; }
+        .btn-sec { background: #e2e8f0; color: var(--text-main); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        @media print {
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body>
 
-<div class="discovery-container">
-    <span class="sli-logo">Speaker Leadership Index</span>
-
-    <div id="quiz-screen">
-        <h1>Discover Your Leadership Identity</h1>
-        <p class="subtitle">It is revealed when you respond, not when you prepare.</p>
-
-        <div class="track-bg"><div class="track-fill" id="progress"></div></div>
-
-        <div class="scenario-box animate" id="scenario-container">
-            </div>
-    </div>
-
-    <div id="results-screen">
-        <div id="pdf-export-area">
-            <div class="report-header">
-                <span class="level-tag" id="res-level">Leadership Level</span>
-                <h1 class="identity-badge" id="res-identity">The Catalyst</h1>
-                <p id="res-experience" style="font-style: italic; color: var(--text-gray); margin-bottom: 30px;"></p>
-            </div>
-
-            <div class="pillar-analysis">
-                <div class="pillar-card">
-                    <span class="pillar-name">Your Natural Presence</span>
-                    <p class="pillar-desc" id="res-desc"></p>
-                </div>
-                <div class="pillar-card">
-                    <span class="pillar-name">Growth Focus</span>
-                    <p class="pillar-desc" id="res-growth" style="color: var(--accent);"></p>
-                </div>
-            </div>
+<div class="container" id="diagnostic-app">
+    <div id="quiz-phase">
+        <div class="header">
+            <h1>The Speaker Leadership Index</h1>
+            <p class="subtitle">Discover how you naturally show up when people are listening.</p>
         </div>
 
-        <div style="text-align: center;">
-            <button class="nav-btn" onclick="downloadReport()">Download Executive Report</button>
-            <p style="margin-top: 20px; font-size: 0.8rem; color: var(--text-gray);">Qualified for Inner Circle Selection</p>
+        <div class="progress-container">
+            <div class="progress-label">
+                <span id="q-count">Scenario 1 of 10</span>
+                <span id="percent-text">0% Complete</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
+        </div>
+
+        <div id="question-render"></div>
+
+        <div class="nav">
+            <button class="btn btn-sec" id="prev-btn" onclick="changeQ(-1)">Previous</button>
+            <button class="btn btn-main" id="next-btn" onclick="changeQ(1)" disabled>Next Step</button>
+        </div>
+    </div>
+
+    <div id="results-area">
+        <div id="pdf-wrapper">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h1 style="margin-bottom: 5px;">Speaker Leadership Report</h1>
+                <p style="color: var(--text-light);">SLI Functional Analysis & Strategic Way Forward</p>
+                <h2 id="archetype-display" style="color: var(--blue-600); font-size: 2rem; margin-top: 20px;">The Influencer</h2>
+            </div>
+
+            <div id="pillar-results"></div>
+        </div>
+
+        <div class="nav no-print">
+            <button class="btn btn-sec" onclick="location.reload()">Retake SLI</button>
+            <button class="btn btn-main" id="download-btn" onclick="generatePDF()">Download Full Report (PDF)</button>
         </div>
     </div>
 </div>
 
 <script>
+// SCORING: 1pt for A (Foundation), 2pts for B (Adaptive), 3pts for C (Mastery/Transformational)
 const sliData = [
-    { q: "You step forward. The room is quiet, but attention feels distant.", opts: ["You begin with your prepared opening and allow your message to unfold.", "You adjust your tone and observe how the audience responds as you begin.", "You pause briefly and begin in a way that brings them into the moment with you."] },
-    { q: "In the middle of speaking, your mind goes blank for a moment.", opts: ["You continue forward, trusting the flow will return.", "You pause briefly, collect your thoughts, and continue.", "You acknowledge the moment naturally and rebuild the flow."] },
-    { q: "Someone asks a question that shifts the direction of your talk.", opts: ["You respond briefly and return to your structure.", "You explore the question and connect it to your message.", "You allow the moment to reshape the direction of the conversation."] },
-    { q: "You sense they are listening, but not fully engaged.", opts: ["You continue, trusting the message will land.", "You adjust your delivery to better align with them.", "You shift your approach to bring them into active participation."] },
-    { q: "You feel nervous energy rising within you.", opts: ["You continue speaking, focusing on maintaining composure.", "You slow yourself and stabilize your pace.", "You ground yourself fully before continuing."] },
-    { q: "You realize their needs are different from what you prepared.", opts: ["You continue, knowing your message still carries value.", "You adjust your examples to better fit them.", "You reshape your message to meet them where they are."] },
-    { q: "An unexpected reaction emerges from the audience.", opts: ["You stay focused on your message.", "You acknowledge it briefly and continue.", "You use the moment to deepen engagement."] },
-    { q: "Time is running out.", opts: ["You work to complete what you planned.", "You focus on what matters most.", "You ensure they leave with something that stays with them."] },
-    { q: "You notice shifts in audience attention.", opts: ["You maintain your delivery.", "You adjust your presence slightly.", "You actively guide their attention and energy."] },
-    { q: "You reach the end of your message.", opts: ["You conclude and allow them to reflect.", "You reinforce your key message clearly.", "You close in a way that changes how they see themselves or their next step."] }
+    { p: "Connection", q: "Scenario 1: You step forward. The room is quiet, but attention feels distant.", opts: ["You begin with your prepared opening and allow your message to unfold.", "You adjust your tone and observe how the audience responds as you begin.", "You pause briefly and begin in a way that brings them into the moment with you."] },
+    { p: "Confidence", q: "Scenario 2: In the middle of speaking, your mind goes blank for a moment.", opts: ["You continue forward, trusting the flow will return.", "You pause briefly, collect your thoughts, and continue.", "You acknowledge the moment naturally and rebuild the flow."] },
+    { p: "Clarity", q: "Scenario 3: Someone asks a question that shifts the direction of your talk.", opts: ["You respond briefly and return to your structure.", "You explore the question and connect it to your message.", "You allow the moment to reshape the direction of the conversation."] },
+    { p: "Connection", q: "Scenario 4: You sense they are listening, but not fully engaged.", opts: ["You continue, trusting the message will land.", "You adjust your delivery to better align with them.", "You shift your approach to bring them into active participation."] },
+    { p: "Confidence", q: "Scenario 5: You feel nervous energy rising within you.", opts: ["You continue speaking, focusing on maintaining composure.", "You slow yourself and stabilize your pace.", "You ground yourself fully before continuing."] },
+    { p: "Clarity", q: "Scenario 6: You realize their needs are different from what you prepared.", opts: ["You continue, knowing your message still carries value.", "You adjust your examples to better fit them.", "You reshape your message to meet them where they are."] },
+    { p: "Connection", q: "Scenario 7: An unexpected reaction emerges from the audience.", opts: ["You stay focused on your message.", "You acknowledge it briefly and continue.", "You use the moment to deepen engagement."] },
+    { p: "Transformation", q: "Scenario 8: Time is running out.", opts: ["You work to complete what you planned.", "You focus on what matters most.", "You ensure they leave with something that stays with them."] },
+    { p: "Transformation", q: "Scenario 9: You notice shifts in audience attention.", opts: ["You maintain your delivery.", "You adjust your presence slightly.", "You actively guide their attention and energy."] },
+    { p: "Transformation", q: "Scenario 10: You reach the end of your message.", opts: ["You conclude and allow them to reflect.", "You reinforce your key message clearly.", "You close in a way that changes how they see themselves or their next step."] }
 ];
 
-let step = 0;
-let scores = [];
+const pillarReports = {
+    "Confidence": {
+        strength: "You demonstrate a reliable baseline of composure. You rely on your preparation to carry you through moments of internal friction.",
+        forward: "<strong>The Way Forward:</strong> Move from 'maintaining composure' to 'full grounding.' When energy rises, don't just speak through it—stop, breathe, and use that energy as a physical anchor to increase your stage presence."
+    },
+    "Clarity": {
+        strength: "You possess a strong sense of structure. You are able to handle shifts in direction without losing the core thread of your message.",
+        forward: "<strong>The Way Forward:</strong> Shift from 'returning to structure' to 'dynamic reshaping.' Practice treating audience questions not as distractions, but as the new 'front door' to your message. Let the conversation breathe."
+    },
+    "Connection": {
+        strength: "You are observant of the room. You have moved past 'broadcasting' and have begun 'receiving' the audience's energy.",
+        forward: "<strong>The Way Forward:</strong> Don't just observe the distance—collapse it. Use the 'Pause' as a leadership tool. Before you speak a single word, ensure the audience is mentally 'on stage' with you through intentional presence."
+    },
+    "Transformation": {
+        strength: "You understand that a message should lead somewhere. You focus on the 'Key Message' rather than just the content.",
+        forward: "<strong>The Way Forward:</strong> Aim for the 'Identity Shift.' Your goal at the end of a talk is not to leave them with notes, but to leave them with a new vision of who they are. Focus your closing on the audience's next step, not your final point."
+    }
+};
 
-function renderStep() {
-    const data = sliData[step];
-    const container = document.getElementById('scenario-container');
-    document.getElementById('progress').style.width = `${((step + 1) / 10) * 100}%`;
+let currentIdx = 0;
+let scores = new Array(10).fill(null);
 
+function renderQuestion() {
+    const data = sliData[currentIdx];
+    const container = document.getElementById('question-render');
+    
     let html = `
-        <span class="scenario-label">Scenario ${step + 1} of 10</span>
-        <div class="scenario-text">${data.q}</div>
-        <div class="option-list">
+        <div class="scenario-box">
+            <span class="scenario-tag">Focus: ${data.p}</span>
+            <div class="question-text">${data.q}</div>
+            <div class="options-list">
+                ${data.opts.map((opt, i) => `
+                    <button class="opt-btn ${scores[currentIdx] === (i+1) ? 'selected' : ''}" onclick="setScore(${i+1})">
+                        <span class="opt-idx">${String.fromCharCode(65+i)}</span>
+                        <span>${opt}</span>
+                    </button>
+                `).join('')}
+            </div>
+        </div>
     `;
+    container.innerHTML = html;
 
-    data.opts.forEach((opt, i) => {
-        html += `
-            <div class="option-item" onclick="select(${i + 1})">
-                <div class="opt-mark"></div>
-                ${opt}
+    // Progress
+    document.getElementById('q-count').innerText = `Scenario ${currentIdx + 1} of 10`;
+    const progress = ((currentIdx + 1) / 10) * 100;
+    document.getElementById('bar-fill').style.width = `${progress}%`;
+    document.getElementById('percent-text').innerText = `${Math.round(progress)}% Complete`;
+
+    document.getElementById('prev-btn').disabled = currentIdx === 0;
+    document.getElementById('next-btn').disabled = scores[currentIdx] === null;
+    document.getElementById('next-btn').innerText = currentIdx === 9 ? "Generate Analysis" : "Next Step";
+}
+
+window.setScore = (val) => {
+    scores[currentIdx] = val;
+    renderQuestion();
+};
+
+window.changeQ = (dir) => {
+    if (dir === 1 && currentIdx === 9) {
+        calculateResults();
+        return;
+    }
+    currentIdx += dir;
+    renderQuestion();
+};
+
+function calculateResults() {
+    document.getElementById('quiz-phase').style.display = 'none';
+    document.getElementById('results-area').style.display = 'block';
+
+    const totals = { Confidence: 0, Clarity: 0, Connection: 0, Transformation: 0 };
+    const counts = { Confidence: 0, Clarity: 0, Connection: 0, Transformation: 0 };
+
+    sliData.forEach((d, i) => {
+        totals[d.p] += scores[i];
+        counts[d.p]++;
+    });
+
+    const resultDiv = document.getElementById('pillar-results');
+    resultDiv.innerHTML = "";
+
+    Object.keys(totals).forEach(p => {
+        const avg = totals[p] / counts[p];
+        const max = 3;
+        const percent = (avg / max) * 100;
+
+        resultDiv.innerHTML += `
+            <div class="pillar-card">
+                <div class="pillar-header">
+                    <span class="pillar-name">${p}</span>
+                    <span class="pillar-score">Index: ${avg.toFixed(1)}/3.0</span>
+                </div>
+                <div class="bar-bg" style="margin-bottom: 20px;"><div class="bar-fill" style="width: ${percent}%"></div></div>
+                <span class="section-title strength">Current Strength</span>
+                <p class="report-text">${pillarReports[p].strength}</p>
+                <span class="section-title way-forward">Way Forward</span>
+                <p class="report-text">${pillarReports[p].forward}</p>
             </div>
         `;
     });
 
-    html += `</div>`;
-    container.innerHTML = html;
+    const grandTotal = scores.reduce((a, b) => a + b, 0);
+    let arch = "";
+    if (grandTotal <= 15) arch = "The Foundation Speaker";
+    else if (grandTotal <= 25) arch = "The Adaptive Communicator";
+    else arch = "The Transformational Leader";
+    document.getElementById('archetype-display').innerText = arch;
 }
 
-function select(val) {
-    scores.push(val);
-    if (step < 9) {
-        step++;
-        renderStep();
-    } else {
-        processResults();
-    }
-}
-
-function processResults() {
-    document.getElementById('quiz-screen').style.display = 'none';
-    document.getElementById('results-screen').style.display = 'block';
-
-    const total = scores.reduce((a, b) => a + b, 0);
-    const countA = scores.filter(x => x === 1).length;
-    const countB = scores.filter(x => x === 2).length;
-    const countC = scores.filter(x => x === 3).length;
-
-    let level = "";
-    let experience = "";
-    let desc = "";
-    let growth = "";
-    let identity = "";
-
-    // Score Range Assignments
-    if (total <= 14) {
-        level = "The Emerging Voice";
-        experience = "Steady. Observing. Developing.";
-        desc = "You have the foundation. Your leadership is present, but still forming under pressure.";
-        growth = "Trust your presence. Leadership begins when you stop protecting yourself and start guiding others.";
-    } else if (total <= 20) {
-        level = "The Structured Leader";
-        experience = "Reliable. Intentional. Increasingly influential.";
-        desc = "You bring intention and growing awareness. You are beginning to influence beyond your words.";
-        growth = "Move from delivering information to shaping experience.";
-    } else if (total <= 25) {
-        level = "The Influential Leader";
-        experience = "Confident. Engaging. Trustworthy.";
-        desc = "You do not just speak. You move people.";
-        growth = "Strengthen your ability to transform, not just engage.";
-    } else {
-        level = "The Transformational Leader";
-        experience = "Grounded. Certain. Transformative.";
-        desc = "Your presence creates change. People do not just hear you; they see differently because of you.";
-        growth = "Scale your influence. Others are ready to follow where you lead.";
-    }
-
-    // Identity Assignment based on dominant patterns
-    if (countC >= 6) identity = "The Catalyst";
-    else if (countC >= 3 || countB >= 5) identity = "The Guide";
-    else if (countB >= countA) identity = "The Builder";
-    else identity = "The Observer";
-
-    document.getElementById('res-level').innerText = `Leadership Level: ${level}`;
-    document.getElementById('res-identity').innerText = identity;
-    document.getElementById('res-experience').innerText = `How people experience you: ${experience}`;
-    document.getElementById('res-desc').innerText = desc;
-    document.getElementById('res-growth').innerText = growth;
-}
-
-function downloadReport() {
-    const element = document.getElementById('pdf-export-area');
+function generatePDF() {
+    const element = document.getElementById('pdf-wrapper');
     const opt = {
-        margin: 0.5,
-        filename: 'SLI_Leadership_Identity.pdf',
+        margin: [0.5, 0.5],
+        filename: 'SLI_Leadership_Index_Report.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, backgroundColor: '#0f172a' },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
     html2pdf().set(opt).from(element).save();
 }
 
-renderStep();
+renderQuestion();
 </script>
 </body>
 </html>
