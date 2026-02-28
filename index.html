@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The 4-Pillar Public Speaking Diagnostic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -30,21 +30,21 @@
             padding: 20px;
         }
 
+        /* We remove overflow:hidden here to prevent PDF clipping */
         .container {
             background-color: var(--card-bg);
             width: 100%;
-            max-width: 950px;
+            max-width: 900px;
             border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             padding: 40px 50px;
             position: relative;
-            overflow: hidden;
         }
 
-        h1, h2, h3 { font-family: 'Montserrat', sans-serif; margin-top: 0; color: var(--primary); }
+        h1, h2, h3, h4 { font-family: 'Montserrat', sans-serif; margin-top: 0; color: var(--primary); }
         
         .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #ecf0f1; padding-bottom: 20px; }
-        .header h1 { font-size: 2.2rem; }
+        .header h1 { font-size: 2.2rem; font-weight: 800; }
         .header p { color: var(--text-muted); font-size: 1.1rem; }
 
         /* Progress Bar */
@@ -55,7 +55,7 @@
 
         /* Quiz UI */
         .q-meta { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; display: block; font-weight: 600; }
-        .question-text { font-size: 1.4rem; line-height: 1.5; margin-bottom: 30px; color: var(--primary); font-family: 'Montserrat', sans-serif;}
+        .question-text { font-size: 1.35rem; line-height: 1.5; margin-bottom: 30px; color: var(--primary); font-family: 'Montserrat', sans-serif;}
 
         .options-grid { display: grid; gap: 12px; }
         .option-btn {
@@ -88,26 +88,42 @@
 
         /* Results UI */
         #results-ui { display: none; }
-        .result-header { text-align: center; margin-bottom: 40px; }
-        .archetype { font-size: 2.5rem; color: var(--secondary); margin: 10px 0; }
         
-        .pillar-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 40px; }
-        .pillar-card { background: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 5px solid var(--primary); }
-        .pillar-title { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; font-weight: 700; }
+        /* PDF specific wrapper */
+        #pdf-content { padding: 10px; background: white; }
+        
+        .result-header { text-align: center; margin-bottom: 40px; }
+        .archetype { font-size: 2.5rem; color: var(--secondary); margin: 10px 0; font-weight: 800;}
+        
+        .pillar-grid { display: grid; grid-template-columns: 1fr; gap: 25px; margin-bottom: 20px; }
+        
+        /* crucial for PDF: prevents card from splitting across pages */
+        .pillar-card { 
+            background: #f8f9fa; 
+            padding: 25px; 
+            border-radius: 8px; 
+            border-left: 5px solid var(--primary);
+            page-break-inside: avoid; 
+        }
+        
+        .pillar-title { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; font-weight: 700; }
         
         .feedback-box { margin-top: 15px; }
-        .strength-text { color: var(--secondary); font-size: 0.95rem; font-weight: bold; margin-bottom: 5px; }
-        .forward-text { color: var(--text-main); font-size: 1rem; line-height: 1.6; }
+        .strength-text { color: var(--secondary); font-size: 1rem; font-weight: bold; margin-bottom: 8px; display: block; }
+        .forward-text { color: var(--text-main); font-size: 1.05rem; line-height: 1.6; }
         .forward-text strong { color: var(--danger); }
 
         @keyframes fade { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
         .animate { animation: fade 0.3s ease forwards; }
 
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container" id="capture-area">
+<div class="container">
     <div id="quiz-ui">
         <div class="header">
             <h1>The Public Speaking Matrix</h1>
@@ -131,24 +147,26 @@
     </div>
 
     <div id="results-ui">
-        <div class="result-header">
-            <h3>Diagnostic Complete</h3>
-            <h1 class="archetype" id="res-archetype">Analyzing...</h1>
-            <p id="res-desc" style="font-size: 1.1rem; color: var(--text-muted); max-width: 700px; margin: 0 auto; line-height: 1.6;"></p>
+        <div id="pdf-content">
+            <div class="result-header">
+                <h3>Diagnostic Complete</h3>
+                <h1 class="archetype" id="res-archetype">Analyzing...</h1>
+                <p id="res-desc" style="font-size: 1.1rem; color: var(--text-muted); max-width: 700px; margin: 0 auto; line-height: 1.6;"></p>
+            </div>
+
+            <h3 style="border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 25px;">Your Pillar Analysis & Way Forward</h3>
+            <div class="pillar-grid" id="pillar-grid"></div>
         </div>
 
-        <h3 style="border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">Your Pillar Analysis & Way Forward</h3>
-        <div class="pillar-grid" id="pillar-grid"></div>
-
-        <div class="nav-footer" data-html2canvas-ignore>
+        <div class="nav-footer" id="action-buttons">
             <button class="btn btn-prev" onclick="location.reload()">Retake Diagnostic</button>
-            <button class="btn btn-next" onclick="downloadPDF()">Export PDF Report</button>
+            <button class="btn btn-next" id="pdf-btn" onclick="downloadPDF()">Export PDF Report</button>
         </div>
     </div>
 </div>
 
 <script>
-// Logic: 0 = Low (Friction), 1 = Mid (Mechanical), 2 = High (Mastery)
+// SCORING LOGIC: 0 = Low (Friction), 1 = Mid (Mechanical), 2 = High (Mastery)
 const quizData = [
     // PILLAR 1: CONFIDENCE
     { pillar: 0, pName: "Confidence", q: "The Pre-Speech Panic: You are sitting on stage, waiting to be introduced. Your heart is hammering and self-consciousness takes over.", opts: [
@@ -261,22 +279,22 @@ const quizData = [
 
 const reports = [
     {
-        name: "Confidence",
+        name: "Confidence (The Foundation)",
         strength: "You possess a strong internal anchor. You understand that public speaking is an act of service, not an ego exhibition. You conquer stage fright by subordinating yourself to the message.",
         weakness: "<strong>The Way Forward:</strong> You are currently leaking power to self-consciousness. Stop viewing yourself as an exhibit; you are a messenger. Never apologize for your nervousness. If your mind blanks, do not panic—simply pick up the last important word you said and build a new sentence. Will your physical tension into dynamic energy."
     },
     {
-        name: "Clarity",
+        name: "Clarity (The Architecture)",
         strength: "You are an architect of thought. You ruthlessly cut the clutter, translating complex ideas into simple analogies, and you articulate your words with crisp precision.",
         weakness: "<strong>The Way Forward:</strong> Your message is currently getting lost in the transmission. You must relentlessly cut useless words and ideas. Do not rely on generic jargon or abstract concepts; use clear examples and analogies to explain the unknown by the known. Practice flexible lip movements to eradicate slovenly pronunciation."
     },
     {
-        name: "Connection",
+        name: "Connection (The Bridge)",
         strength: "You build an immediate bridge to your audience. You know how to fuse scattered individuals into a crowd, and you use the 'Pause' masterfully to let your ideas penetrate their minds.",
         weakness: "<strong>The Way Forward:</strong> You are 'performing' rather than 'connecting.' Never speak to a physically scattered audience—politely pack them together. Drop the 'orator' voice and use an enlarged conversational tone. Above all, do not rush. Hold a 3-second pause after every major point so the idea can soak in like rain into soil."
     },
     {
-        name: "Transformation",
+        name: "Transformation (The Destination)",
         strength: "You are a catalyst. You understand that logic informs, but emotion moves. You secure confidence, borrow authority, and frame your calls to action entirely in the audience's self-interest.",
         weakness: "<strong>The Way Forward:</strong> You are currently arguing rather than persuading. Remember that a crowd does not reason, it feels. Do not attack them with cold logic; secure their confidence first. Borrow authority from recognized experts. When closing, do not ask for permission—give a specific, bold command framed in the audience's best interest."
     }
@@ -356,10 +374,10 @@ function showResults() {
     let archDesc = "";
     if (totalScore < 16) {
         archName = "The Developing Speaker";
-        archDesc = "You are currently letting stage fright, lack of structure, and a misunderstanding of audience psychology hinder your true potential. Review the specific Way Forward protocols below.";
+        archDesc = "You are currently letting stage fright, lack of structure, and a misunderstanding of audience psychology hinder your true potential. Review the specific Way Forward protocols below to build your foundation.";
     } else if (totalScore < 32) {
         archName = "The Capable Presenter";
-        archDesc = "You have a solid grasp of the basics. You deliver information well, but you are occasionally sacrificing deep audience connection and true transformation for the sake of 'getting through the material.'";
+        archDesc = "You have a solid grasp of the basics. You deliver information well, but you are occasionally sacrificing deep audience connection and true transformation for the sake of merely 'getting through the material.'";
     } else {
         archName = "The Master Communicator";
         archDesc = "You possess an exceptional intuitive grasp of the four pillars. You lead with confidence, structure with clarity, connect with empathy, and persuade with power.";
@@ -378,7 +396,7 @@ function showResults() {
         if (score >= 7) {
             feedbackHtml = `
                 <div class="feedback-box">
-                    <div class="strength-text">✓ Strength Identified</div>
+                    <span class="strength-text">✓ Strength Identified</span>
                     <div class="forward-text">${reports[i].strength}</div>
                 </div>
             `;
@@ -394,7 +412,7 @@ function showResults() {
             <div class="pillar-card">
                 <div class="pillar-title">
                     <span>${reports[i].name}</span>
-                    <span style="color: var(--text-muted); font-size: 1rem;">${score}/10</span>
+                    <span style="color: var(--text-muted); font-size: 1rem;">Score: ${score}/10</span>
                 </div>
                 <div class="progress-track" style="background: #e9ecef; margin-bottom: 15px;">
                     <div class="progress-fill" style="width: ${percent}%;"></div>
@@ -408,17 +426,33 @@ function showResults() {
 }
 
 window.downloadPDF = function() {
-    const element = document.getElementById('capture-area');
+    const btn = document.getElementById('pdf-btn');
+    btn.innerText = "Generating PDF...";
+    btn.disabled = true;
+
+    // Target ONLY the content we want in the PDF (excluding the web buttons)
+    const element = document.getElementById('pdf-content');
+    
     const opt = {
-        margin: 0.3,
-        filename: 'Public_Speaking_Pillars_Report.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        margin:       [0.4, 0.4, 0.4, 0.4], // Top, Left, Bottom, Right margins in inches
+        filename:     'Public_Speaking_Diagnostic_Report.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            windowWidth: 900 // Forces a specific desktop width to prevent mobile styling in PDF
+        },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+        pagebreak:    { mode: 'css', avoid: '.pillar-card' } // Prevents cutting boxes in half
     };
-    html2pdf().set(opt).from(element).save();
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerText = "Export PDF Report";
+        btn.disabled = false;
+    });
 }
 
+// Init
 render();
 </script>
 
